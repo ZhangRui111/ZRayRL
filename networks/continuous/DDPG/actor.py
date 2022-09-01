@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 
 
-class Network(nn.Module):
+class Actor(nn.Module):
     def __init__(self, in_dim: int, out_dim: int):
-        super(Network, self).__init__()
+        super(Actor, self).__init__()
 
         self.layers = nn.Sequential(
             nn.Linear(in_dim, 128),
@@ -12,7 +12,9 @@ class Network(nn.Module):
             nn.Linear(128, 128),
             nn.ReLU(),
             nn.Linear(128, out_dim),
+            nn.Tanh(),
         )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.layers(x)
+    def forward(self, state: torch.Tensor) -> torch.Tensor:
+        action = self.layers(state)
+        return action

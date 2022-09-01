@@ -86,7 +86,7 @@ class DQNAgent:
         self.dqn_target.load_state_dict(self.dqn.state_dict())
         self.dqn_target.eval()
 
-        # optimizer
+        # optimizer and loss
         self.optimizer = optim.Adam(self.dqn.parameters(), lr=self.lr)
         self.loss_criterion = nn.SmoothL1Loss()
 
@@ -114,7 +114,8 @@ class DQNAgent:
 
     def step(self, action: np.ndarray) -> Tuple[np.ndarray, np.float64, bool]:
         """ Take an action and return the response of the env. """
-        next_state, reward, done, truncated, _ = self.env.step(action)
+        next_state, reward, terminated, truncated, _ = self.env.step(action)
+        done = terminated  # for the CartPole
 
         if not self.is_test:
             self.transition += [reward, next_state, done]
@@ -159,7 +160,8 @@ class DQNAgent:
                 score = 0
 
             if frame_idx % 1000 == 0:
-                print("{}: {}".format(frame_idx, sum(scores)/len(scores)))
+                # print("{}: {}".format(frame_idx, sum(scores) / len(scores)))
+                print("{}: {}".format(frame_idx, sum(scores[-100:]) / 100))
 
             # if training is ready
             if len(self.memory) >= self.batch_size:
@@ -204,7 +206,7 @@ class DQNAgent:
         return loss
 
     def _target_hard_update(self):
-        """ Apply hard update to the target model."""
+        """ Apply hard update to the target model. """
         self.dqn_target.load_state_dict(self.dqn.state_dict())
 
     def test(self) -> None:

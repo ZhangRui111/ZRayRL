@@ -11,7 +11,7 @@ class Network(nn.Module):
             nn.ReLU(),
             nn.Linear(128, 128),
             nn.ReLU(),
-            nn.Linear(128, out_dim)
+            nn.Linear(128, out_dim),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

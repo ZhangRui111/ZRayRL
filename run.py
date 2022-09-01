@@ -45,6 +45,8 @@ def main():
         from algorithms.discrete.DuelingDQN.agent import DQNAgent
     elif opt.alg == "D3QN":
         from algorithms.discrete.D3QN.agent import DQNAgent
+    elif opt.alg == "DDPG":
+        from algorithms.continuous.DDPG.agent import DDPGAgent
     else:
         raise NotImplementedError("{} is not implemented".format(opt.alg))
 
@@ -55,7 +57,12 @@ def main():
         obs_dim = env.observation_space.shape[0]
         action_dim = env.action_space.n
     elif opt.act_type == "continuous":
-        pass
+        env_id = "Pendulum-v1"
+        env = gym.make(env_id, new_step_api=True)
+        obs_dim = env.observation_space.shape[0]
+        action_dim = env.action_space.shape[0]
+        action_low = env.action_space.low
+        action_high = env.action_space.high
     else:
         raise Exception()
 
@@ -100,6 +107,20 @@ def main():
         epsilon_decay = 1 / 2000  # it takes 2000 frames to reach the min_epsilon
         agent = DQNAgent(env, obs_dim, action_dim, lr, memory_size,
                          batch_size, target_update, epsilon_decay)
+    elif opt.alg == "DDPG":
+        # hyper-parameters
+        num_frames = 50000
+        lr_actor = 3e-4
+        lr_critic = 1e-3
+        memory_size = 100000
+        batch_size = 128
+        ou_noise_theta = 1.0
+        ou_noise_sigma = 0.1
+        initial_random_steps = 10000
+        agent = DDPGAgent(env, obs_dim, action_dim, action_low, action_high,
+                          lr_actor, lr_critic, memory_size,
+                          batch_size, ou_noise_theta, ou_noise_sigma,
+                          initial_random_steps=initial_random_steps)
     else:
         raise NotImplementedError("{} is not implemented".format(opt.alg))
 
