@@ -10,7 +10,7 @@ import torch
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("alg", type=str,  default="",
-                        choices=["DQN", "doubleDQN", "DuelingDQN", "D3QN",
+                        choices=["DQN", "DoubleDQN", "DuelingDQN", "D3QN",
                                  "DDPG", "TD3",
                                  "PPO"],
                         help="the DRL algorithm name.")
@@ -19,11 +19,14 @@ def main():
                         help="discrete/continuous action space.")
     opt = parser.parse_args()
 
-    # set the random seed
+    # set the random seed (reproductivity)
     seed = 777
     np.random.seed(seed)
     random.seed(seed)
     torch.manual_seed(seed)
+    if torch.backends.cudnn.enabled:
+        torch.backends.cudnn.benchmark = False
+        torch.backends.cudnn.deterministic = True
 
     # the root path for logging
     log_root = "logs"
@@ -36,8 +39,12 @@ def main():
     # ---------- solution 2 ----------
     if opt.alg == "DQN":
         from algorithms.discrete.DQN.agent import DQNAgent
+    elif opt.alg == "DoubleDQN":
+        from algorithms.discrete.DoubleDQN.agent import DQNAgent
+    elif opt.alg == "DuelingDQN":
+        from algorithms.discrete.DuelingDQN.agent import DQNAgent
     elif opt.alg == "D3QN":
-        pass
+        from algorithms.discrete.D3QN.agent import DQNAgent
     else:
         raise NotImplementedError("{} is not implemented".format(opt.alg))
 
@@ -55,7 +62,27 @@ def main():
     # initialize the agent and launch the training
     if opt.alg == "DQN":
         # hyper-parameters
-        num_frames = 10000
+        num_frames = 20000
+        lr = 1e-3
+        memory_size = 1000
+        batch_size = 32
+        target_update = 100
+        epsilon_decay = 1 / 2000  # it takes 2000 frames to reach the min_epsilon
+        agent = DQNAgent(env, obs_dim, action_dim, lr, memory_size,
+                         batch_size, target_update, epsilon_decay)
+    elif opt.alg == "DoubleDQN":
+        # hyper-parameters
+        num_frames = 20000
+        lr = 1e-3
+        memory_size = 1000
+        batch_size = 32
+        target_update = 100
+        epsilon_decay = 1 / 2000  # it takes 2000 frames to reach the min_epsilon
+        agent = DQNAgent(env, obs_dim, action_dim, lr, memory_size,
+                         batch_size, target_update, epsilon_decay)
+    elif opt.alg == "DuelingDQN":
+        # hyper-parameters
+        num_frames = 20000
         lr = 1e-3
         memory_size = 1000
         batch_size = 32
@@ -64,7 +91,15 @@ def main():
         agent = DQNAgent(env, obs_dim, action_dim, lr, memory_size,
                          batch_size, target_update, epsilon_decay)
     elif opt.alg == "D3QN":
-        pass
+        # hyper-parameters
+        num_frames = 20000
+        lr = 1e-3
+        memory_size = 1000
+        batch_size = 32
+        target_update = 100
+        epsilon_decay = 1 / 2000  # it takes 2000 frames to reach the min_epsilon
+        agent = DQNAgent(env, obs_dim, action_dim, lr, memory_size,
+                         batch_size, target_update, epsilon_decay)
     else:
         raise NotImplementedError("{} is not implemented".format(opt.alg))
 

@@ -3,16 +3,16 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-# from torch.nn.utils import clip_grad_norm_  # gradient clipping
+from torch.nn.utils import clip_grad_norm_
 from typing import Dict, Tuple
 
 from algorithms.discrete.replay_buffer import ReplayBuffer
-from networks.discrete.DQN.network import Network
+from networks.discrete.D3QN.network import Network
 
 
 class DQNAgent:
     """
-    DQN Agent interacting with environment.
+    Double Dueling DQN Agent interacting with environment.
 
     Attribute:
         env:
@@ -130,7 +130,7 @@ class DQNAgent:
 
         self.optimizer.zero_grad()
         loss.backward()
-        # clip_grad_norm_(self.dqn.parameters(), 10.0)  # gradient clipping
+        clip_grad_norm_(self.dqn.parameters(), 10.0)  # gradient clipping
         self.optimizer.step()
 
         return loss.item()
@@ -192,9 +192,9 @@ class DQNAgent:
         # G_t   = r + gamma * v(s_{t+1})  if state != Terminal
         #       = r                       otherwise
         curr_q_value = self.dqn(state).gather(1, action)
-        next_q_value = self.dqn_target(
-            next_state
-        ).max(dim=1, keepdim=True)[0].detach()
+        next_q_value = self.dqn_target(next_state).gather(  # Double DQN
+            1, self.dqn(next_state).argmax(dim=1, keepdim=True)
+        ).detach()
         mask = 1 - done
         target = (reward + self.gamma * next_q_value * mask).to(self.device)
 

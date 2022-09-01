@@ -7,12 +7,12 @@ import torch.optim as optim
 from typing import Dict, Tuple
 
 from algorithms.discrete.replay_buffer import ReplayBuffer
-from networks.discrete.DQN.network import Network
+from networks.discrete.DuelingDQN.network import Network
 
 
 class DQNAgent:
     """
-    DQN Agent interacting with environment.
+    Dueling DQN Agent interacting with environment.
 
     Attribute:
         env:

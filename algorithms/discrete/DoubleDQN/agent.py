@@ -7,12 +7,12 @@ import torch.optim as optim
 from typing import Dict, Tuple
 
 from algorithms.discrete.replay_buffer import ReplayBuffer
-from networks.discrete.DQN.network import Network
+from networks.discrete.DoubleDQN.network import Network
 
 
 class DQNAgent:
     """
-    DQN Agent interacting with environment.
+    Double DQN Agent interacting with environment.
 
     Attribute:
         env:
@@ -192,9 +192,9 @@ class DQNAgent:
         # G_t   = r + gamma * v(s_{t+1})  if state != Terminal
         #       = r                       otherwise
         curr_q_value = self.dqn(state).gather(1, action)
-        next_q_value = self.dqn_target(
-            next_state
-        ).max(dim=1, keepdim=True)[0].detach()
+        next_q_value = self.dqn_target(next_state).gather(  # Double DQN
+            1, self.dqn(next_state).argmax(dim=1, keepdim=True)
+        ).detach()
         mask = 1 - done
         target = (reward + self.gamma * next_q_value * mask).to(self.device)
 
