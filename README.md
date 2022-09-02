@@ -23,7 +23,7 @@ This project is a RL toolbox with a basic/concise implementation.
 | D3QN | Discrete | Double Dueling DQN |
 | DDPG | Continuous | [Continuous Control with Deep Reinforcement Learning](https://arxiv.org/pdf/1509.02971.pdf) |
 | TD3 | Continuous | [Addressing Function Approximation Error in Actor-Critic Methods](https://arxiv.org/pdf/1802.09477.pdf) |
-| PPO | Discrete/Continuous | |
+| PPO | Discrete/Continuous | [Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347) |
 
 ### III. Practical Tips
 #### III.1. Tips
@@ -33,6 +33,9 @@ This project is a RL toolbox with a basic/concise implementation.
    - For continuous tasks: PPO, TD3.
 1. NO Batch Normalization
 1. Try a small learning rate from the beginning, e.g., 1e-4.
+   
+   PPO can handle larger learning rate? Maybe.
+   
 1. Reward function: global reward + factor * local reward
     - global reward cares for the final target, while local reward aims to provide some prior knowledge.
     - the positive factor should be lower than 1, i.e., \[0, 1\].
@@ -46,6 +49,7 @@ This project is a RL toolbox with a basic/concise implementation.
    
 1. For algorithm that has actor and critic, the learning rate for the critic usually is larger than that for the actor.
 1. Be careful with the activation (type) following the output layer.
+1. Larger policy/value network is not necessarily better. For some simple tasks/states, smaller policy/value network can save lots of training time.
 
 #### III.2. Optional Tips
 
