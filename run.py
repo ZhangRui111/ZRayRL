@@ -47,6 +47,8 @@ def main():
         from algorithms.discrete.D3QN.agent import DQNAgent
     elif opt.alg == "DDPG":
         from algorithms.continuous.DDPG.agent import DDPGAgent
+    elif opt.alg == "TD3":
+        from algorithms.continuous.TD3.agent import TD3Agent
     else:
         raise NotImplementedError("{} is not implemented".format(opt.alg))
 
@@ -121,6 +123,17 @@ def main():
                           lr_actor, lr_critic, memory_size,
                           batch_size, ou_noise_theta, ou_noise_sigma,
                           initial_random_steps=initial_random_steps)
+    elif opt.alg == "TD3":
+        # hyper-parameters
+        num_frames = 50000
+        lr_actor = 3e-4
+        lr_critic = 1e-3
+        memory_size = 100000
+        batch_size = 128
+        initial_random_steps = 10000
+        agent = TD3Agent(env, obs_dim, action_dim, action_low, action_high,
+                         lr_actor, lr_critic, memory_size,
+                         batch_size, initial_random_steps=initial_random_steps)
     else:
         raise NotImplementedError("{} is not implemented".format(opt.alg))
 
