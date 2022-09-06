@@ -14,6 +14,7 @@ from algorithms.discrete.PPO.memory import Memory
 class PPOAgent:
     """
     PPO Agent interacting with environment.
+
     Attributes:
         env:
         actor (nn.Module): actor model to select actions

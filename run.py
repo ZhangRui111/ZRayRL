@@ -56,6 +56,11 @@ def main():
             from algorithms.discrete.PPO.agent import PPOAgent
         else:
             from algorithms.continuous.PPO.agent import PPOAgent
+    elif opt.alg == "A2C":
+        if opt.act_type == "discrete":
+            from algorithms.discrete.A2C.agent import A2CAgent
+        else:
+            from algorithms.continuous.A2C.agent import A2CAgent
     else:
         raise NotImplementedError("{} is not implemented".format(opt.alg))
 
@@ -174,6 +179,21 @@ def main():
             agent = PPOAgent(env, obs_dim, action_dim, action_low, action_high,
                              lr_actor, lr_critic, batch_size, gamma=0.9, tau=0.8,
                              epsilon=0.2, epoch=32, rollout_len=1024, entropy_weight=0.005)
+    elif opt.alg == "A2C":
+        if opt.act_type == "discrete":
+            # hyper-parameters
+            num_frames = 50000
+            lr_actor = 1e-3
+            lr_critic = 2e-3
+            agent = A2CAgent(env, obs_dim, action_dim,
+                             lr_actor, lr_critic, gamma=0.9, entropy_weight=0.01)
+        else:
+            # hyper-parameters
+            num_frames = 50000
+            lr_actor = 2e-3
+            lr_critic = 5e-3
+            agent = A2CAgent(env, obs_dim, action_dim, action_low, action_high,
+                             lr_actor, lr_critic, gamma=0.9, entropy_weight=0.01)
     else:
         raise NotImplementedError("{} is not implemented".format(opt.alg))
 

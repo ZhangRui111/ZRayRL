@@ -18,23 +18,23 @@ This project is a RL toolbox with a basic/concise implementation.
 | Algorithm | Action | Paper |
 | :---: | :--- | :--- |
 | DQN | Discrete | [Human-Level Control through Deep Reinforcement Learning](https://storage.googleapis.com/deepmind-media/dqn/DQNNaturePaper.pdf) |
-| Double DQN | Discrete | [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/pdf/1509.06461.pdf) |
-| Dueling DQN | Discrete | [Dueling Network Architectures for Deep Reinforcement Learning](https://arxiv.org/pdf/1511.06581.pdf) |
+| DoubleDQN | Discrete | [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/pdf/1509.06461.pdf) |
+| DuelingDQN | Discrete | [Dueling Network Architectures for Deep Reinforcement Learning](https://arxiv.org/pdf/1511.06581.pdf) |
 | PER DQN | Discrete | [Prioritized Experience Replay](https://arxiv.org/pdf/1511.05952.pdf) |
 | D3QN | Discrete | Double Dueling DQN |
 | DDPG | Continuous | [Continuous Control with Deep Reinforcement Learning](https://arxiv.org/pdf/1509.02971.pdf) |
 | TD3 | Continuous | [Addressing Function Approximation Error in Actor-Critic Methods](https://arxiv.org/pdf/1802.09477.pdf) |
 | PPO | Discrete/Continuous | [Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347) |
-| A2C | Discrete/Continuous | []() |
+| A2C | Discrete/Continuous | [Asynchronous methods for deep reinforcement learning](http://proceedings.mlr.press/v48/mniha16.pdf) |
 | SAC | Discrete/Continuous | []() |
 
 ### III. Practical Tips
 #### III.1. Tips
 
 1. Algorithm selection
-   - For discrete tasks: D3QN.
-   - For continuous tasks: PPO, TD3.
-1. NO Batch Normalization
+   - For discrete tasks: **D3QN**.
+   - For continuous tasks: **PPO**, **TD3**.
+1. **NO Batch Normalization**
 1. Try a small learning rate from the beginning, e.g., 1e-4.
    
    PPO can handle larger learning rate? Maybe.
@@ -43,7 +43,7 @@ This project is a RL toolbox with a basic/concise implementation.
     - global reward cares for the final target, while local reward aims to provide some prior knowledge.
     - the positive factor should be lower than 1, i.e., \[0, 1\].
     - tune the factor carefully.
-1. The learning rate and the reward function are among the top factors in RL training.
+1. The **learning rate** and the **reward function** are among the top factors in RL training.
 1. When applying RL to deal with CV problems, do not involve the image feature extractor into the policy/value network. 
    
    Usually, we employ a separate feature extractor decoupled from the policy/value network.
