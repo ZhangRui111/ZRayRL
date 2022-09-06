@@ -119,7 +119,7 @@ class PPOAgent:
             self.memory.values.append(value)
             self.memory.log_probs.append(dist.log_prob(selected_action))
 
-        return selected_action.detach().cpu().numpy()
+        return selected_action.clamp(-1.0, 1.0).detach().cpu().numpy()
 
     def step(self, action: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """ Take an action and return the response of the env. """

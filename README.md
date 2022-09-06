@@ -1,6 +1,6 @@
 # ZRayRL
 
-This project is a RL toolbox with a basic/concise implementation.
+This project is a RL toolbox with a basic/concise and consistent implementation.
 
 ## I. Dependencies and Install
 ### I.1. Main Dependencies
@@ -24,7 +24,8 @@ This project is a RL toolbox with a basic/concise implementation.
 | TD3 | Continuous | [Addressing Function Approximation Error in Actor-Critic Methods](https://arxiv.org/pdf/1802.09477.pdf) |
 | PPO | Discrete/Continuous | [Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347) |
 | A2C | Discrete/Continuous | [Asynchronous methods for deep reinforcement learning](http://proceedings.mlr.press/v48/mniha16.pdf) |
-| SAC | Discrete/Continuous | []() |
+| SAC | Continuous | [Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor](https://arxiv.org/pdf/1801.01290.pdf) <br> [Soft Actor-Critic Algorithms and Applications](https://arxiv.org/pdf/1812.05905.pdf) |
+| SAC-Discrete (TODO) | Discrete | [Soft Actor-Critic for Discrete Action Settings](https://arxiv.org/pdf/1910.07207.pdf) |
 
 ### III. Practical Tips
 #### III.1. Tips
