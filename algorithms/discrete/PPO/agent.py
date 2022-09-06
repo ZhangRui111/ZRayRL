@@ -209,6 +209,7 @@ class PPOAgent:
         scores = []  # episodic cumulated reward
 
         state = self.env.reset()
+        # Expanding the shape is necessary for tensor.cat() in the update_model()
         state = np.expand_dims(state, axis=0)
         score = 0
         while self.total_step <= num_frames + 1:

@@ -2,8 +2,6 @@
 
 This project is a RL toolbox with a basic/concise implementation.
 
----
-
 ## I. Dependencies and Install
 ### I.1. Main Dependencies
 - python
