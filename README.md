@@ -20,10 +20,13 @@ This project is a RL toolbox with a basic/concise implementation.
 | DQN | Discrete | [Human-Level Control through Deep Reinforcement Learning](https://storage.googleapis.com/deepmind-media/dqn/DQNNaturePaper.pdf) |
 | Double DQN | Discrete | [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/pdf/1509.06461.pdf) |
 | Dueling DQN | Discrete | [Dueling Network Architectures for Deep Reinforcement Learning](https://arxiv.org/pdf/1511.06581.pdf) |
+| PER DQN | Discrete | [Prioritized Experience Replay](https://arxiv.org/pdf/1511.05952.pdf) |
 | D3QN | Discrete | Double Dueling DQN |
 | DDPG | Continuous | [Continuous Control with Deep Reinforcement Learning](https://arxiv.org/pdf/1509.02971.pdf) |
 | TD3 | Continuous | [Addressing Function Approximation Error in Actor-Critic Methods](https://arxiv.org/pdf/1802.09477.pdf) |
 | PPO | Discrete/Continuous | [Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347) |
+| A2C | Discrete/Continuous | []() |
+| SAC | Discrete/Continuous | []() |
 
 ### III. Practical Tips
 #### III.1. Tips

@@ -10,9 +10,9 @@ import torch
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("alg", type=str,  default="",
-                        choices=["DQN", "DoubleDQN", "DuelingDQN", "D3QN",
+                        choices=["DQN", "DoubleDQN", "DuelingDQN", "D3QN", "PERDQN",
                                  "DDPG", "TD3",
-                                 "PPO"],
+                                 "PPO", "A2C", "SAC"],
                         help="the DRL algorithm name.")
     parser.add_argument("act_type", type=str, default="",
                         choices=["discrete", "continuous"],
@@ -43,6 +43,8 @@ def main():
         from algorithms.discrete.DoubleDQN.agent import DQNAgent
     elif opt.alg == "DuelingDQN":
         from algorithms.discrete.DuelingDQN.agent import DQNAgent
+    elif opt.alg == "PERDQN":
+        from algorithms.discrete.PERDQN.agent import DQNAgent
     elif opt.alg == "D3QN":
         from algorithms.discrete.D3QN.agent import DQNAgent
     elif opt.alg == "DDPG":
@@ -104,6 +106,20 @@ def main():
         epsilon_decay = 1 / 2000  # it takes 2000 frames to reach the min_epsilon
         agent = DQNAgent(env, obs_dim, action_dim, lr, memory_size,
                          batch_size, target_update, epsilon_decay)
+    elif opt.alg == "PERDQN":
+        # hyper-parameters
+        num_frames = 20000
+        lr = 1e-3
+        memory_size = 1000
+        batch_size = 32
+        target_update = 100
+        epsilon_decay = 1 / 2000  # it takes 2000 frames to reach the min_epsilon
+        alpha = 0.2
+        beta = 0.6
+        prior_eps = 1e-6
+        agent = DQNAgent(env, obs_dim, action_dim, lr, memory_size,
+                         batch_size, target_update, epsilon_decay,
+                         alpha=alpha, beta=beta, prior_eps=prior_eps)
     elif opt.alg == "D3QN":
         # hyper-parameters
         num_frames = 20000
