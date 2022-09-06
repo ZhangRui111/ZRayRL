@@ -6,10 +6,9 @@ import torch.optim as optim
 # from torch.nn.utils import clip_grad_norm_  # gradient clipping
 from typing import Tuple
 
-from algorithms.continuous.action_normalizer import ActionNormalizer
-from networks.continuous.PPO import *
-from algorithms.continuous.PPO.gae import compute_gae
-from algorithms.continuous.PPO.memory import Memory
+from networks.discrete.PPO import *
+from algorithms.discrete.PPO.gae import compute_gae
+from algorithms.discrete.PPO.memory import Memory
 
 
 class PPOAgent:
@@ -39,8 +38,6 @@ class PPOAgent:
             env,
             obs_dim: int,
             action_dim: int,
-            action_low: float,
-            action_high: float,
             lr_actor: float,
             lr_critic: float,
             batch_size: int,
@@ -56,8 +53,6 @@ class PPOAgent:
         :param env:
         :param obs_dim: observation dimension
         :param action_dim: action dimension
-        :param action_low:
-        :param action_high:
         :param lr_actor (float): learning rate for the actor
         :param lr_critic (float): learning rate for the critic
         :param batch_size (int): batch size for sampling
@@ -71,7 +66,6 @@ class PPOAgent:
         self.env = env
         self.obs_dim = obs_dim
         self.action_dim = action_dim
-        self.action_normalizer = ActionNormalizer(action_low, action_high)
         self.lr_actor = lr_actor
         self.lr_critic = lr_critic
         self.gamma = gamma
@@ -109,7 +103,7 @@ class PPOAgent:
         """ Select an action. """
         state = torch.from_numpy(state).float().to(self.device)
         action, dist = self.actor(state)
-        selected_action = dist.mean if self.is_test else action
+        selected_action = torch.argmax(dist.probs).unsqueeze(0) if self.is_test else action
 
         if not self.is_test:
             value = self.critic(state)
@@ -118,13 +112,12 @@ class PPOAgent:
             self.memory.values.append(value)
             self.memory.log_probs.append(dist.log_prob(selected_action))
 
-        return selected_action.detach().cpu().numpy()
+        return selected_action.detach().cpu().numpy()[0]
 
     def step(self, action: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """ Take an action and return the response of the env. """
-        action = self.action_normalizer.reverse_action(action)
         next_state, reward, terminated, truncated, _ = self.env.step(action)
-        done = truncated  # for the Pendulum
+        done = terminated  # for the CartPole
 
         next_state = np.reshape(next_state, (1, -1)).astype(np.float64)
         reward = np.reshape(reward, (1, -1)).astype(np.float64)

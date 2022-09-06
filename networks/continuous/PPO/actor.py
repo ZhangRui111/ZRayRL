@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.distributions import Normal
+from typing import Tuple
 
 
 class Actor(nn.Module):
@@ -29,7 +30,10 @@ class Actor(nn.Module):
             nn.Tanh(),
         )
 
-    def forward(self, state: torch.Tensor) -> torch.Tensor:
+    def forward(
+            self, state: torch.Tensor
+    ) -> Tuple[torch.Tensor,
+               torch.distributions.distribution.Distribution]:
         x = self.hidden(state)
         mu = self.mu_layer(x)
         log_std = self.log_std_layer(x)
@@ -38,8 +42,8 @@ class Actor(nn.Module):
                 self.log_std_max - self.log_std_min
         ) * (log_std + 1)
         std = torch.exp(log_std)
-
         dist = Normal(mu, std)
+
         action = dist.sample()
 
         return action, dist

@@ -50,7 +50,10 @@ def main():
     elif opt.alg == "TD3":
         from algorithms.continuous.TD3.agent import TD3Agent
     elif opt.alg == "PPO":
-        from algorithms.continuous.PPO.agent import PPOAgent
+        if opt.act_type == "discrete":
+            from algorithms.discrete.PPO.agent import PPOAgent
+        else:
+            from algorithms.continuous.PPO.agent import PPOAgent
     else:
         raise NotImplementedError("{} is not implemented".format(opt.alg))
 
@@ -137,14 +140,24 @@ def main():
                          lr_actor, lr_critic, memory_size,
                          batch_size, initial_random_steps=initial_random_steps)
     elif opt.alg == "PPO":
-        # hyper-parameters
-        num_frames = 50000
-        lr_actor = 2e-3
-        lr_critic = 5e-3
-        batch_size = 128
-        agent = PPOAgent(env, obs_dim, action_dim, action_low, action_high,
-                         lr_actor, lr_critic, batch_size, gamma=0.9, tau=0.8,
-                         epsilon=0.2, epoch=64, rollout_len=2048, entropy_weight=0.005)
+        if opt.act_type == "discrete":
+            # hyper-parameters
+            num_frames = 50000
+            lr_actor = 2e-3
+            lr_critic = 5e-3
+            batch_size = 128
+            agent = PPOAgent(env, obs_dim, action_dim,
+                             lr_actor, lr_critic, batch_size, gamma=0.9, tau=0.8,
+                             epsilon=0.2, epoch=32, rollout_len=1024, entropy_weight=0.005)
+        else:
+            # hyper-parameters
+            num_frames = 50000
+            lr_actor = 2e-3
+            lr_critic = 5e-3
+            batch_size = 128
+            agent = PPOAgent(env, obs_dim, action_dim, action_low, action_high,
+                             lr_actor, lr_critic, batch_size, gamma=0.9, tau=0.8,
+                             epsilon=0.2, epoch=32, rollout_len=1024, entropy_weight=0.005)
     else:
         raise NotImplementedError("{} is not implemented".format(opt.alg))
 

@@ -149,19 +149,14 @@ class TD3Agent:
         if self.total_step < self.initial_random_steps and not self.is_test:
             selected_action = self.random_action()
         else:
-            selected_action = (
-                self.actor(torch.FloatTensor(state).to(self.device))[0]
-                    .detach()
-                    .cpu()
-                    .numpy()
-            )
+            selected_action = self.actor(
+                torch.from_numpy(state).float().to(self.device)
+            ).detach().cpu().numpy()
 
         # add noise for exploration during training
         if not self.is_test:
             noise = self.exploration_noise.sample()
-            selected_action = np.clip(
-                selected_action + noise, -1.0, 1.0
-            )
+            selected_action = np.clip(selected_action + noise, -1.0, 1.0)
 
             self.transition = [state, selected_action]
 
@@ -182,7 +177,7 @@ class TD3Agent:
 
         return next_state, reward, done
 
-    def update_model(self) -> torch.Tensor:
+    def update_model(self) -> Tuple[float, float]:
         """ Update the model by gradient descent. """
         device = self.device  # for shortening the following lines
 

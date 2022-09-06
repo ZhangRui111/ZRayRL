@@ -153,7 +153,7 @@ class DDPGAgent:
 
         return next_state, reward, done
 
-    def update_model(self) -> torch.Tensor:
+    def update_model(self) -> Tuple[float, float]:
         """ Update the model by gradient descent. """
         device = self.device  # for shortening the following lines
 
