@@ -2,14 +2,18 @@
 
 This project is a RL toolbox with a basic/concise and consistent implementation.
 
-## I. Dependencies and Install
+## I. Installation
 ### I.1. Main Dependencies
 - python
 - pytorch
 - OpenAI gym
 - numpy
 
-### I.2. Install
+### I.2. Configure the Environment with Anaconda
+
+1. Locate the root directory
+1. Create a new conda environment, ```conda env create -f zrayrl.yaml```
+1. Activate the new conda environment, ```conda activate zrayrl```
 
 ## II. Algorithm List and Related Papers
 
@@ -22,10 +26,14 @@ This project is a RL toolbox with a basic/concise and consistent implementation.
 | D3QN | Discrete | Double Dueling DQN |
 | DDPG | Continuous | [Continuous Control with Deep Reinforcement Learning](https://arxiv.org/pdf/1509.02971.pdf) |
 | TD3 | Continuous | [Addressing Function Approximation Error in Actor-Critic Methods](https://arxiv.org/pdf/1802.09477.pdf) |
+| REINFORCE | Discrete/Continuous | [Simple Statistical Gradient-Following Algorithms for Connectionist Reinforcement Learning](https://people.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf) |
 | PPO | Discrete/Continuous | [Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347) |
-| A2C | Discrete/Continuous | [Asynchronous methods for deep reinforcement learning](http://proceedings.mlr.press/v48/mniha16.pdf) |
-| SAC | Continuous | [Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor](https://arxiv.org/pdf/1801.01290.pdf) <br> [Soft Actor-Critic Algorithms and Applications](https://arxiv.org/pdf/1812.05905.pdf) |
-| SAC-Discrete (TODO) | Discrete | [Soft Actor-Critic for Discrete Action Settings](https://arxiv.org/pdf/1910.07207.pdf) |
+| A2C | Discrete/Continuous | [Asynchronous Methods for Deep Reinforcement Learning](http://proceedings.mlr.press/v48/mniha16.pdf) |
+| A3C (TODO) | Discrete/Continuous | [Asynchronous Methods for Deep Reinforcement Learning](http://proceedings.mlr.press/v48/mniha16.pdf) |
+| SAC | Continuous | [1. Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor](https://arxiv.org/pdf/1801.01290.pdf) <br> [2. Soft Actor-Critic Algorithms and Applications](https://arxiv.org/pdf/1812.05905.pdf) |
+| DiscreteSAC (TODO) | Discrete | [Soft Actor-Critic for Discrete Action Settings](https://arxiv.org/pdf/1910.07207.pdf) |
+
+TODO: An illustration on relationships among all algorithms
 
 ### III. Practical Tips
 #### III.1. Tips
@@ -51,6 +59,7 @@ This project is a RL toolbox with a basic/concise and consistent implementation.
    
 1. For algorithm that has actor and critic, the learning rate for the critic usually is larger than that for the actor.
 1. Be careful with the activation (type) following the output layer.
+1. Normalization on the observation/state. 
 1. Larger policy/value network is not necessarily better. For some simple tasks/states, smaller policy/value network can save lots of training time.
 
 #### III.2. Optional Tips

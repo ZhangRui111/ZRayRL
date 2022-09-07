@@ -168,6 +168,7 @@ class DDPGAgent:
         next_action = self.actor_target(next_state)
         next_value = self.critic_target(next_state, next_action)
         curr_return = reward + self.gamma * next_value * masks
+        curr_return = curr_return.detach()
 
         # train critic
         values = self.critic(state, action)

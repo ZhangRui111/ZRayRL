@@ -6,23 +6,20 @@ import torch.optim as optim
 # from torch.nn.utils import clip_grad_norm_  # gradient clipping
 from typing import Tuple
 
-from networks.discrete.A2C import *
+from networks.discrete.REINFORCE import *
 
 
-class A2CAgent:
+class REINFORCEAgent:
     """
-    A2C Agent interacting with environment.
+    REINFORCE Agent interacting with environment.
 
     Attributes:
         env:
-        actor (nn.Module): actor model to select actions
-        critic (nn.Module): critic model to predict state values
-        actor_optimizer (Optimizer): optimizer for training actor
-        critic_optimizer (Optimizer): optimizer for training critic
+        policy (nn.Module): actor model to select actions
+        optimizer (Optimizer): optimizer for training policy
         gamma (float): discount factor
         entropy_weight (float): rate of weighting entropy into the loss function
         device (torch.device): cpu / gpu
-        transition (list): temporary storage for the recent transition
         total_step (int): total step numbers
         is_test (bool): flag to show the current mode (train / test)
     """
@@ -32,8 +29,7 @@ class A2CAgent:
             env,
             obs_dim: int,
             action_dim: int,
-            lr_actor: float,
-            lr_critic: float,
+            lr: float,
             gamma: float,
             entropy_weight: float,
     ):
@@ -42,16 +38,14 @@ class A2CAgent:
         :param env:
         :param obs_dim: observation dimension
         :param action_dim: action dimension
-        :param lr_actor (float): learning rate for the actor
-        :param lr_critic (float): learning rate for the critic
+        :param lr (float): learning rate
         :param gamma (float): discount factor
         :param entropy_weight (float): rate of weighting entropy into the loss function
         """
         self.env = env
         self.obs_dim = obs_dim
         self.action_dim = action_dim
-        self.lr_actor = lr_actor
-        self.lr_critic = lr_critic
+        self.lr = lr
         self.gamma = gamma
         self.entropy_weight = entropy_weight
 
@@ -62,16 +56,15 @@ class A2CAgent:
         print(self.device)
 
         # networks
-        self.actor = Actor(obs_dim, action_dim).to(self.device)
-        self.critic = Critic(obs_dim).to(self.device)
+        self.policy = Policy(obs_dim, action_dim).to(self.device)
 
         # optimizer and loss
-        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=self.lr_actor)
-        self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=self.lr_critic)
-        self.loss_criterion = nn.SmoothL1Loss()
+        self.optimizer = optim.Adam(self.policy.parameters(), lr=self.lr)
 
-        # transition (state, log_prob, next_state, reward, done)
-        self.transition: list = list()
+        # store necessary info
+        self.saved_log_probs = []
+        self.rewards = []
+        self.eps = np.finfo(np.float32).eps.item()
 
         # total steps count
         self.total_step = 1
@@ -81,63 +74,57 @@ class A2CAgent:
 
     def select_action(self, state: np.ndarray) -> np.ndarray:
         """ Select an action. """
-        state = torch.from_numpy(state).float().to(self.device)
-        action, dist = self.actor(state)
-        selected_action = torch.argmax(dist.probs) if self.is_test else action
+        state = torch.from_numpy(state).float().unsqueeze(0).to(self.device)
+        action, dist = self.policy(state)
+        selected_action = torch.argmax(dist.probs).unsqueeze(0) if self.is_test else action
 
         if not self.is_test:
-            log_prob = dist.log_prob(selected_action).sum(dim=-1)
-            self.transition = [state, log_prob]
+            self.saved_log_probs.append(dist.log_prob(selected_action))
 
-        return selected_action.detach().cpu().numpy()
+        return selected_action.detach().cpu().numpy()[0]
 
-    def step(self, action: np.ndarray) -> Tuple[np.ndarray, np.float64, bool]:
+    def step(self, action: np.ndarray) -> Tuple[np.ndarray, float, bool]:
         """ Take an action and return the response of the env. """
         next_state, reward, terminated, truncated, _ = self.env.step(action)
         done = terminated  # for the CartPole
 
         if not self.is_test:
-            self.transition.extend([next_state, reward, done])
+            self.rewards.append(reward)
 
         return next_state, reward, done
 
-    def update_model(self) -> Tuple[float, float]:
+    def update_model(self) -> float:
         """ Update the model by gradient descent. """
-        state, log_prob, next_state, reward, done = self.transition
+        R = 0
+        policy_loss = []
+        returns = []
+        for r in self.rewards[::-1]:
+            R = r + self.gamma * R
+            returns.insert(0, R)
+        returns = torch.tensor(returns)
+        returns = (returns - returns.mean()) / (returns.std() + self.eps)
 
-        # Q_t   = r + gamma * V(s_{t+1})  if state != Terminal
-        #       = r                       otherwise
-        mask = 1 - done
-        next_state = torch.from_numpy(next_state).float().to(self.device)
-        pred_value = self.critic(state)
-        targ_value = reward + self.gamma * self.critic(next_state) * mask
-        value_loss = self.loss_criterion(pred_value, targ_value.detach())
+        for log_prob, R in zip(self.saved_log_probs, returns):
+            loss = -R * log_prob
+            loss += self.entropy_weight * -log_prob
+            policy_loss.append(loss)
+        policy_loss = torch.cat(policy_loss).sum()
 
-        # update value
-        self.critic_optimizer.zero_grad()
-        value_loss.backward()
-        # clip_grad_norm_(self.critic.parameters(), 10.0)  # gradient clipping
-        self.critic_optimizer.step()
+        self.optimizer.zero_grad()
+        policy_loss.backward()
+        # clip_grad_norm_(self.policy.parameters(), 10.0)  # gradient clipping
+        self.optimizer.step()
 
-        # advantage = Q_t - V(s_t)
-        advantage = (targ_value - pred_value).detach()  # not back-propagated
-        actor_loss = -advantage * log_prob
-        actor_loss += self.entropy_weight * -log_prob  # entropy maximization
+        del self.rewards[:]
+        del self.saved_log_probs[:]
 
-        # update policy
-        self.actor_optimizer.zero_grad()
-        actor_loss.backward()
-        # clip_grad_norm_(self.actor.parameters(), 10.0)  # gradient clipping
-        self.actor_optimizer.step()
-
-        return actor_loss.item(), value_loss.item()
+        return policy_loss.item()
 
     def train(self, num_frames: int):
         """ Train the agent. """
         self.is_test = False
 
-        actor_losses = []
-        critic_losses = []
+        policy_losses = []
         scores = []  # episodic cumulated reward
 
         state = self.env.reset()
@@ -150,12 +137,11 @@ class A2CAgent:
             state = next_state
             score += reward
 
-            actor_loss, critic_loss = self.update_model()
-            actor_losses.append(actor_loss)
-            critic_losses.append(critic_loss)
-
             # if episode ends
             if done:
+                policy_loss = self.update_model()
+                policy_losses.append(policy_loss)
+
                 state = self.env.reset()
                 scores.append(score)
                 score = 0

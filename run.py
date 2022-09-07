@@ -12,7 +12,8 @@ def main():
     parser.add_argument("alg", type=str,  default="",
                         choices=["DQN", "DoubleDQN", "DuelingDQN", "D3QN", "PERDQN",
                                  "DDPG", "TD3",
-                                 "PPO", "A2C", "SAC"],
+                                 "REINFORCE", "PPO", "A2C", "A3C",
+                                 "SAC", "DiscreteSAC"],
                         help="the DRL algorithm name.")
     parser.add_argument("act_type", type=str, default="",
                         choices=["discrete", "continuous"],
@@ -51,6 +52,11 @@ def main():
         from algorithms.continuous.DDPG.agent import DDPGAgent
     elif opt.alg == "TD3":
         from algorithms.continuous.TD3.agent import TD3Agent
+    elif opt.alg == "REINFORCE":
+        if opt.act_type == "discrete":
+            from algorithms.discrete.REINFORCE.agent import REINFORCEAgent
+        else:
+            from algorithms.continuous.REINFORCE.agent import REINFORCEAgent
     elif opt.alg == "PPO":
         if opt.act_type == "discrete":
             from algorithms.discrete.PPO.agent import PPOAgent
@@ -172,6 +178,19 @@ def main():
         agent = TD3Agent(env, obs_dim, action_dim, action_low, action_high,
                          lr_actor, lr_critic, memory_size,
                          batch_size, initial_random_steps=initial_random_steps)
+    elif opt.alg == "REINFORCE":
+        if opt.act_type == "discrete":
+            # hyper-parameters
+            num_frames = 50000
+            lr = 5e-3
+            agent = REINFORCEAgent(env, obs_dim, action_dim,
+                                   lr, gamma=0.9, entropy_weight=0.01)
+        else:
+            # hyper-parameters
+            num_frames = 50000
+            lr = 5e-3
+            agent = REINFORCEAgent(env, obs_dim, action_dim, action_low, action_high,
+                                   lr, gamma=0.9, entropy_weight=0.01)
     elif opt.alg == "PPO":
         if opt.act_type == "discrete":
             # hyper-parameters
@@ -207,20 +226,18 @@ def main():
             agent = A2CAgent(env, obs_dim, action_dim, action_low, action_high,
                              lr_actor, lr_critic, gamma=0.9, entropy_weight=0.01)
     elif opt.alg == "SAC":
-        if opt.act_type == "discrete":
-            raise NotImplementedError("TODO")
-        else:
-            # hyper-parameters
-            num_frames = 50000
-            lr_actor = 1e-3
-            lr_critic_q = 3e-3
-            lr_critic_v = 3e-3
-            memory_size = 100000
-            batch_size = 128
-            initial_random_steps = 10000
-            agent = SACAgent(env, obs_dim, action_dim, action_low, action_high,
-                             lr_actor, lr_critic_q, lr_critic_v, memory_size,
-                             batch_size, initial_random_steps=initial_random_steps)
+        assert opt.act_type == "continuous", "SAC does not support discrete action space"
+        # hyper-parameters
+        num_frames = 50000
+        lr_actor = 1e-3
+        lr_critic_q = 3e-3
+        lr_critic_v = 3e-3
+        memory_size = 100000
+        batch_size = 128
+        initial_random_steps = 10000
+        agent = SACAgent(env, obs_dim, action_dim, action_low, action_high,
+                         lr_actor, lr_critic_q, lr_critic_v, memory_size,
+                         batch_size, initial_random_steps=initial_random_steps)
     else:
         raise NotImplementedError("{} is not implemented".format(opt.alg))
 
