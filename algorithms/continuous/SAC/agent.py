@@ -282,14 +282,17 @@ class SACAgent:
         """ Test the agent. """
         self.is_test = True
 
-        done = False
-        state = self.env.reset()
-        score = 0
-        while not done:
-            action = self.select_action(state)
-            next_state, reward, done = self.step(action)
-            state = next_state
-            score += reward
+        avg_score = []
+        for _ in range(10):
+            done = False
+            state = self.env.reset()
+            score = 0
+            while not done:
+                action = self.select_action(state)
+                next_state, reward, done = self.step(action)
+                state = next_state
+                score += reward
+            avg_score.append(score)
 
-        print("score: {}".format(score))
+        print("Average score: {}".format(sum(avg_score) / len(avg_score)))
         self.env.close()

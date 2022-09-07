@@ -2,7 +2,7 @@
 
 This project is a RL toolbox with a basic/concise and consistent implementation.
 
-## I. Installation
+## I. Installation and Run
 ### I.1. Main Dependencies
 - python
 - pytorch
@@ -15,22 +15,25 @@ This project is a RL toolbox with a basic/concise and consistent implementation.
 1. Create a new conda environment, ```conda env create -f zrayrl.yaml```
 1. Activate the new conda environment, ```conda activate zrayrl```
 
+### I.3 How to Run
+```python run.py [alg] [act_type]```, e.g., ```python run.py DQN discrete```.
+
 ## II. Algorithm List and Related Papers
 
 | Algorithm | Action | Paper |
 | :---: | :--- | :--- |
-| DQN | Discrete | [Human-Level Control through Deep Reinforcement Learning](https://storage.googleapis.com/deepmind-media/dqn/DQNNaturePaper.pdf) |
-| DoubleDQN | Discrete | [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/pdf/1509.06461.pdf) |
-| DuelingDQN | Discrete | [Dueling Network Architectures for Deep Reinforcement Learning](https://arxiv.org/pdf/1511.06581.pdf) |
-| PER DQN | Discrete | [Prioritized Experience Replay](https://arxiv.org/pdf/1511.05952.pdf) |
-| D3QN | Discrete | Double Dueling DQN |
-| DDPG | Continuous | [Continuous Control with Deep Reinforcement Learning](https://arxiv.org/pdf/1509.02971.pdf) |
-| TD3 | Continuous | [Addressing Function Approximation Error in Actor-Critic Methods](https://arxiv.org/pdf/1802.09477.pdf) |
-| REINFORCE | Discrete/Continuous | [Simple Statistical Gradient-Following Algorithms for Connectionist Reinforcement Learning](https://people.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf) |
-| PPO | Discrete/Continuous | [Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347) |
-| A2C | Discrete/Continuous | [Asynchronous Methods for Deep Reinforcement Learning](http://proceedings.mlr.press/v48/mniha16.pdf) |
+| DQN | [Discrete](https://github.com/ZhangRui111/ZRayRL/tree/master/algorithms/discrete/DQN) | [Human-Level Control through Deep Reinforcement Learning](https://storage.googleapis.com/deepmind-media/dqn/DQNNaturePaper.pdf) |
+| DoubleDQN | [Discrete](https://github.com/ZhangRui111/ZRayRL/tree/master/algorithms/discrete/DoubleDQN) | [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/pdf/1509.06461.pdf) |
+| DuelingDQN | [Discrete](https://github.com/ZhangRui111/ZRayRL/tree/master/algorithms/discrete/DuelingDQN) | [Dueling Network Architectures for Deep Reinforcement Learning](https://arxiv.org/pdf/1511.06581.pdf) |
+| PERDQN | [Discrete](https://github.com/ZhangRui111/ZRayRL/tree/master/algorithms/discrete/PERDQN) | [Prioritized Experience Replay](https://arxiv.org/pdf/1511.05952.pdf) |
+| D3QN | [Discrete](https://github.com/ZhangRui111/ZRayRL/tree/master/algorithms/discrete/D3QN) | Double Dueling DQN |
+| DDPG | [Continuous](https://github.com/ZhangRui111/ZRayRL/tree/master/algorithms/continuous/DDPG) | [Continuous Control with Deep Reinforcement Learning](https://arxiv.org/pdf/1509.02971.pdf) |
+| TD3 | [Continuous](https://github.com/ZhangRui111/ZRayRL/tree/master/algorithms/continuous/TD3) | [Addressing Function Approximation Error in Actor-Critic Methods](https://arxiv.org/pdf/1802.09477.pdf) |
+| REINFORCE | [Discrete](https://github.com/ZhangRui111/ZRayRL/tree/master/algorithms/discrete/REINFORCE) / [Continuous](https://github.com/ZhangRui111/ZRayRL/tree/master/algorithms/continuous/REINFORCE) | [Simple Statistical Gradient-Following Algorithms for Connectionist Reinforcement Learning](https://people.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf) |
+| PPO | [Discrete](https://github.com/ZhangRui111/ZRayRL/tree/master/algorithms/discrete/PPO) / [Continuous](https://github.com/ZhangRui111/ZRayRL/tree/master/algorithms/continuous/PPO) | [Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347) |
+| A2C | [Discrete](https://github.com/ZhangRui111/ZRayRL/tree/master/algorithms/discrete/A2C) / [Continuous](https://github.com/ZhangRui111/ZRayRL/tree/master/algorithms/continuous/A2C) | [Asynchronous Methods for Deep Reinforcement Learning](http://proceedings.mlr.press/v48/mniha16.pdf) |
 | A3C (TODO) | Discrete/Continuous | [Asynchronous Methods for Deep Reinforcement Learning](http://proceedings.mlr.press/v48/mniha16.pdf) |
-| SAC | Continuous | [1. Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor](https://arxiv.org/pdf/1801.01290.pdf) <br> [2. Soft Actor-Critic Algorithms and Applications](https://arxiv.org/pdf/1812.05905.pdf) |
+| SAC | [Continuous](https://github.com/ZhangRui111/ZRayRL/tree/master/algorithms/continuous/SAC) | [1. Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor](https://arxiv.org/pdf/1801.01290.pdf) <br> [2. Soft Actor-Critic Algorithms and Applications](https://arxiv.org/pdf/1812.05905.pdf) |
 | DiscreteSAC (TODO) | Discrete | [Soft Actor-Critic for Discrete Action Settings](https://arxiv.org/pdf/1910.07207.pdf) |
 
 TODO: An illustration on relationships among all algorithms

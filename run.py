@@ -39,18 +39,25 @@ def main():
     # algorithm_module = importlib.import_module(algorithm_module_path)
     # ---------- solution 2 ----------
     if opt.alg == "DQN":
+        assert opt.act_type == "discrete", "DQN does not support continuous action space"
         from algorithms.discrete.DQN.agent import DQNAgent
     elif opt.alg == "DoubleDQN":
+        assert opt.act_type == "discrete", "DoubleDQN does not support continuous action space"
         from algorithms.discrete.DoubleDQN.agent import DQNAgent
     elif opt.alg == "DuelingDQN":
+        assert opt.act_type == "discrete", "DuelingDQN does not support continuous action space"
         from algorithms.discrete.DuelingDQN.agent import DQNAgent
     elif opt.alg == "PERDQN":
+        assert opt.act_type == "discrete", "PERDQN does not support continuous action space"
         from algorithms.discrete.PERDQN.agent import DQNAgent
     elif opt.alg == "D3QN":
+        assert opt.act_type == "discrete", "D3QN does not support continuous action space"
         from algorithms.discrete.D3QN.agent import DQNAgent
     elif opt.alg == "DDPG":
+        assert opt.act_type == "continuous", "DDPG does not support discrete action space"
         from algorithms.continuous.DDPG.agent import DDPGAgent
     elif opt.alg == "TD3":
+        assert opt.act_type == "continuous", "TD3 does not support discrete action space"
         from algorithms.continuous.TD3.agent import TD3Agent
     elif opt.alg == "REINFORCE":
         if opt.act_type == "discrete":
@@ -68,10 +75,8 @@ def main():
         else:
             from algorithms.continuous.A2C.agent import A2CAgent
     elif opt.alg == "SAC":
-        if opt.act_type == "discrete":
-            raise NotImplementedError("TODO")
-        else:
-            from algorithms.continuous.SAC.agent import SACAgent
+        assert opt.act_type == "continuous", "SAC does not support discrete action space"
+        from algorithms.continuous.SAC.agent import SACAgent
     else:
         raise NotImplementedError("{} is not implemented".format(opt.alg))
 
@@ -93,7 +98,6 @@ def main():
 
     # initialize the agent and launch the training
     if opt.alg == "DQN":
-        assert opt.act_type == "discrete", "DQN does not support continuous action space"
         # hyper-parameters
         num_frames = 20000
         lr = 1e-3
@@ -104,7 +108,6 @@ def main():
         agent = DQNAgent(env, obs_dim, action_dim, lr, memory_size,
                          batch_size, target_update, epsilon_decay)
     elif opt.alg == "DoubleDQN":
-        assert opt.act_type == "discrete", "DoubleDQN does not support continuous action space"
         # hyper-parameters
         num_frames = 20000
         lr = 1e-3
@@ -115,7 +118,6 @@ def main():
         agent = DQNAgent(env, obs_dim, action_dim, lr, memory_size,
                          batch_size, target_update, epsilon_decay)
     elif opt.alg == "DuelingDQN":
-        assert opt.act_type == "discrete", "DuelingDQN does not support continuous action space"
         # hyper-parameters
         num_frames = 20000
         lr = 1e-3
@@ -126,7 +128,6 @@ def main():
         agent = DQNAgent(env, obs_dim, action_dim, lr, memory_size,
                          batch_size, target_update, epsilon_decay)
     elif opt.alg == "PERDQN":
-        assert opt.act_type == "discrete", "PERDQN does not support continuous action space"
         # hyper-parameters
         num_frames = 20000
         lr = 1e-3
@@ -141,7 +142,6 @@ def main():
                          batch_size, target_update, epsilon_decay,
                          alpha=alpha, beta=beta, prior_eps=prior_eps)
     elif opt.alg == "D3QN":
-        assert opt.act_type == "discrete", "D3QN does not support continuous action space"
         # hyper-parameters
         num_frames = 20000
         lr = 1e-3
@@ -152,7 +152,6 @@ def main():
         agent = DQNAgent(env, obs_dim, action_dim, lr, memory_size,
                          batch_size, target_update, epsilon_decay)
     elif opt.alg == "DDPG":
-        assert opt.act_type == "continuous", "DDPG does not support discrete action space"
         # hyper-parameters
         num_frames = 50000
         lr_actor = 3e-4
@@ -167,7 +166,6 @@ def main():
                           batch_size, ou_noise_theta, ou_noise_sigma,
                           initial_random_steps=initial_random_steps)
     elif opt.alg == "TD3":
-        assert opt.act_type == "continuous", "TD3 does not support discrete action space"
         # hyper-parameters
         num_frames = 50000
         lr_actor = 3e-4
@@ -226,7 +224,6 @@ def main():
             agent = A2CAgent(env, obs_dim, action_dim, action_low, action_high,
                              lr_actor, lr_critic, gamma=0.9, entropy_weight=0.01)
     elif opt.alg == "SAC":
-        assert opt.act_type == "continuous", "SAC does not support discrete action space"
         # hyper-parameters
         num_frames = 50000
         lr_actor = 1e-3
@@ -241,7 +238,11 @@ def main():
     else:
         raise NotImplementedError("{} is not implemented".format(opt.alg))
 
+    # train
     agent.train(num_frames)
+
+    # test
+    agent.test()
 
 
 if __name__ == '__main__':
