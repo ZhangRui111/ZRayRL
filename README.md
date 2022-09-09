@@ -22,6 +22,7 @@ This project is a RL toolbox with a basic/concise and consistent implementation.
 
 | Algorithm | Action | Paper |
 | :---: | :--- | :--- |
+| Q-Learning | [Discrete](https://github.com/ZhangRui111/ZRayRL/tree/master/algorithms/discrete/QLearning) | \ |
 | DQN | [Discrete](https://github.com/ZhangRui111/ZRayRL/tree/master/algorithms/discrete/DQN) | [Human-Level Control through Deep Reinforcement Learning](https://storage.googleapis.com/deepmind-media/dqn/DQNNaturePaper.pdf) |
 | DoubleDQN | [Discrete](https://github.com/ZhangRui111/ZRayRL/tree/master/algorithms/discrete/DoubleDQN) | [Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/pdf/1509.06461.pdf) |
 | DuelingDQN | [Discrete](https://github.com/ZhangRui111/ZRayRL/tree/master/algorithms/discrete/DuelingDQN) | [Dueling Network Architectures for Deep Reinforcement Learning](https://arxiv.org/pdf/1511.06581.pdf) |
@@ -82,3 +83,4 @@ TODO: An illustration on relationships among all algorithms
 ## Acknowledgement
 - [Rainbow is all you need!](https://github.com/Curt-Park/rainbow-is-all-you-need)
 - [PG is all you need!](https://github.com/MrSyee/pg-is-all-you-need)
+- [ElegantRL](https://github.com/AI4Finance-Foundation/ElegantRL)
