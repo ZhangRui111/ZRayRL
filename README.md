@@ -40,6 +40,15 @@ This project is a RL toolbox with a basic/concise and consistent implementation.
 TODO: An illustration on relationships among all algorithms
 
 ### III. Practical Tips
+
+项目中文博客：
+
+- [深度强化学习从入门到秃头--上篇](https://zray111.github.io/2022/09/11/%E6%B7%B1%E5%BA%A6%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E7%A7%83%E5%A4%B4-%E4%B8%8A%E7%AF%87/)
+
+- 深度强化学习从入门到秃头--中篇 (施工中)
+
+- [深度强化学习从入门到秃头--下篇](https://zray111.github.io/2022/09/11/%E6%B7%B1%E5%BA%A6%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E7%A7%83%E5%A4%B4-%E4%B8%8B%E7%AF%87/)
+
 #### III.1. Tips
 
 1. Algorithm selection
@@ -73,12 +82,7 @@ TODO: An illustration on relationships among all algorithms
 
 #### III.3. More Tips
 
-1. Occam's Razor: Entities should not be multiplied unnecessarily.
-1. SOTA algorithm does not necessarily perform best in practical applications. 
-   
-   Or, tricks that worked in the paper do not necessarily work in practical applications.
-
-#### III.3. References
+1. Occam's Razor: entities should not be multiplied beyond necessity.
 
 ## Acknowledgement
 - [Rainbow is all you need!](https://github.com/Curt-Park/rainbow-is-all-you-need)
