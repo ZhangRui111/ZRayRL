@@ -6,12 +6,13 @@ import torch.optim as optim
 # from torch.nn.utils import clip_grad_norm_  # gradient clipping
 from typing import Tuple
 
+from algorithms.base_agent import BaseAgent
 from algorithms.continuous.replay_buffer import ReplayBuffer
 from algorithms.continuous.action_normalizer import ActionNormalizer
 from networks.continuous.SAC import *
 
 
-class SACAgent:
+class SACAgent(BaseAgent):
     """
     SAC (Soft Actor-Critic) agent interacting with environment.
 
@@ -75,6 +76,8 @@ class SACAgent:
         :param initial_random_steps (int): initial random action steps
         :param policy_update_freq (int): policy update frequency
         """
+        super(SACAgent, self).__init__()
+
         self.env = env
         self.obs_dim = obs_dim
         self.action_dim = action_dim

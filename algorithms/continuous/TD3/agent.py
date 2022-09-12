@@ -6,13 +6,14 @@ import torch.optim as optim
 # from torch.nn.utils import clip_grad_norm_  # gradient clipping
 from typing import Tuple
 
+from algorithms.base_agent import BaseAgent
 from algorithms.continuous.replay_buffer import ReplayBuffer
 from algorithms.continuous.TD3.noise import GaussianNoise
 from algorithms.continuous.action_normalizer import ActionNormalizer
 from networks.continuous.TD3 import *
 
 
-class TD3Agent:
+class TD3Agent(BaseAgent):
     """
     TD3 (Twin Delayed Deep Deterministic Policy Gradient) Agent interacting with environment.
 
@@ -79,6 +80,8 @@ class TD3Agent:
         :param initial_random_steps: initial random action steps
         :param policy_update_freq: update actor every time critic updates this times
         """
+        super(TD3Agent, self).__init__()
+
         self.env = env
         self.obs_dim = obs_dim
         self.action_dim = action_dim

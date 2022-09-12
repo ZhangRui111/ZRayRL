@@ -6,11 +6,12 @@ import torch.optim as optim
 # from torch.nn.utils import clip_grad_norm_  # gradient clipping
 from typing import Dict, Tuple
 
+from algorithms.base_agent import BaseAgent
 from algorithms.discrete.PERDQN.replay_buffer import PrioritizedReplayBuffer
 from networks.discrete.PERDQN import *
 
 
-class DQNAgent:
+class DQNAgent(BaseAgent):
     """
     PER (Prioritized Experience Replay) DQN Agent interacting with environment.
 
@@ -64,6 +65,8 @@ class DQNAgent:
         :param min_epsilon (float): min value of epsilon
         :param gamma (float): discount factor
         """
+        super(DQNAgent, self).__init__()
+
         self.env = env
         self.obs_dim = obs_dim
         self.action_dim = action_dim

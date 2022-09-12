@@ -6,13 +6,14 @@ import torch.optim as optim
 # from torch.nn.utils import clip_grad_norm_  # gradient clipping
 from typing import Tuple
 
+from algorithms.base_agent import BaseAgent
 from algorithms.continuous.action_normalizer import ActionNormalizer
 from networks.continuous.PPO import *
 from algorithms.continuous.PPO.gae import compute_gae
 from algorithms.continuous.PPO.memory import Memory
 
 
-class PPOAgent:
+class PPOAgent(BaseAgent):
     """
     PPO Agent interacting with environment.
 
@@ -69,6 +70,8 @@ class PPOAgent:
         :param rollout_len (int): the number of rollout
         :param entropy_weight (float): rate of weighting entropy into the loss function
         """
+        super(PPOAgent, self).__init__()
+
         self.env = env
         self.obs_dim = obs_dim
         self.action_dim = action_dim

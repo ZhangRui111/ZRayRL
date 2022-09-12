@@ -6,13 +6,14 @@ import torch.optim as optim
 # from torch.nn.utils import clip_grad_norm_  # gradient clipping
 from typing import Tuple
 
+from algorithms.base_agent import BaseAgent
 from algorithms.continuous.replay_buffer import ReplayBuffer
 from algorithms.continuous.DDPG.noise import OUNoise
 from algorithms.continuous.action_normalizer import ActionNormalizer
 from networks.continuous.DDPG import *
 
 
-class DDPGAgent:
+class DDPGAgent(BaseAgent):
     """
     DDPG (Deep Deterministic Policy Gradient) Agent interacting with environment.
 
@@ -70,6 +71,8 @@ class DDPGAgent:
         :param tau: parameter for soft target update
         :param initial_random_steps: initial random action steps
         """
+        super(DDPGAgent, self).__init__()
+
         self.env = env
         self.obs_dim = obs_dim
         self.action_dim = action_dim

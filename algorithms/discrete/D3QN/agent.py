@@ -6,11 +6,12 @@ import torch.optim as optim
 from torch.nn.utils import clip_grad_norm_
 from typing import Dict, Tuple
 
+from algorithms.base_agent import BaseAgent
 from algorithms.discrete.replay_buffer import ReplayBuffer
 from networks.discrete.D3QN import *
 
 
-class DQNAgent:
+class DQNAgent(BaseAgent):
     """
     Double Dueling DQN Agent interacting with environment.
 
@@ -60,6 +61,8 @@ class DQNAgent:
         :param min_epsilon (float): min value of epsilon
         :param gamma (float): discount factor
         """
+        super(DQNAgent, self).__init__()
+
         self.env = env
         self.obs_dim = obs_dim
         self.action_dim = action_dim

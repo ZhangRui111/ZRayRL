@@ -6,10 +6,11 @@ import torch.optim as optim
 # from torch.nn.utils import clip_grad_norm_  # gradient clipping
 from typing import Tuple
 
+from algorithms.base_agent import BaseAgent
 from networks.discrete.REINFORCE import *
 
 
-class REINFORCEAgent:
+class REINFORCEAgent(BaseAgent):
     """
     REINFORCE Agent interacting with environment.
 
@@ -42,6 +43,8 @@ class REINFORCEAgent:
         :param gamma (float): discount factor
         :param entropy_weight (float): rate of weighting entropy into the loss function
         """
+        super(REINFORCEAgent, self).__init__()
+
         self.env = env
         self.obs_dim = obs_dim
         self.action_dim = action_dim

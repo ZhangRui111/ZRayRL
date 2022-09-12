@@ -6,11 +6,12 @@ import torch.optim as optim
 # from torch.nn.utils import clip_grad_norm_  # gradient clipping
 from typing import Tuple
 
+from algorithms.base_agent import BaseAgent
 from algorithms.continuous.action_normalizer import ActionNormalizer
 from networks.continuous.A2C import *
 
 
-class A2CAgent:
+class A2CAgent(BaseAgent):
     """
     A2C Agent interacting with environment.
 
@@ -52,6 +53,8 @@ class A2CAgent:
         :param gamma (float): discount factor
         :param entropy_weight (float): rate of weighting entropy into the loss function
         """
+        super(A2CAgent, self).__init__()
+
         self.env = env
         self.obs_dim = obs_dim
         self.action_dim = action_dim
