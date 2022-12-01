@@ -3,7 +3,8 @@ import pandas as pd
 
 
 class QLearningTable:
-    def __init__(self, states, actions, learning_rate=0.05, discount_factor=0.9, e_greedy=0.9):
+    def __init__(self, states, actions, learning_rate=0.05,
+                 discount_factor=0.9, e_greedy=0.9):
         self.states = states
         self.actions = actions
         self.lr = learning_rate
@@ -17,8 +18,9 @@ class QLearningTable:
         if np.random.uniform() < self.epsilon:
             # choose best action
             state_action = self.q_table.loc[observation, :]
-            # some actions may have the same value, randomly choose on in these actions
-            action = np.random.choice(state_action[state_action == np.max(state_action)].index)
+            # some actions may have the same value, randomly choose one
+            action = np.random.choice(
+                state_action[state_action == np.max(state_action)].index)
         else:
             # choose random action
             action = np.random.choice(self.actions)
@@ -28,8 +30,8 @@ class QLearningTable:
         """ Update the Q table by the Bellman equation. """
         q_predict = self.q_table.loc[s, a]
 
-        # if s_ != 'terminal':
-        #     q_target = r + self.gamma * self.q_table.loc[s_, :].max()  # next state is not terminal
+        # if s_ != 'terminal':  # next state is not terminal
+        #     q_target = r + self.gamma * self.q_table.loc[s_, :].max()
         # else:
         #     q_target = r  # next state is terminal
         q_target = r + self.gamma * self.q_table.loc[s_, :].max()

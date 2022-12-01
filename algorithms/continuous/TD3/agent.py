@@ -78,7 +78,7 @@ class TD3Agent(BaseAgent):
         :param target_policy_noise: gaussian noise for target policy
         :param target_policy_noise_clip: clip target gaussian noise
         :param initial_random_steps: initial random action steps
-        :param policy_update_freq: update actor every time critic updates this times
+        :param policy_update_freq: update actor every time critic updates times
         """
         super(TD3Agent, self).__init__()
 
@@ -100,7 +100,7 @@ class TD3Agent(BaseAgent):
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu"
         )
-        print(self.device)
+        print("Training device: {}".format(self.device))
 
         # noise
         self.exploration_noise = GaussianNoise(
@@ -130,8 +130,10 @@ class TD3Agent(BaseAgent):
         )
 
         # optimizer and loss
-        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=self.lr_actor)
-        self.critic_optimizer = optim.Adam(self.critic_parameters, lr=self.lr_critic)
+        self.actor_optimizer = optim.Adam(self.actor.parameters(),
+                                          lr=self.lr_actor)
+        self.critic_optimizer = optim.Adam(self.critic_parameters,
+                                           lr=self.lr_critic)
         self.loss_criterion = nn.MSELoss()
 
         # transition to store in memory
@@ -187,15 +189,20 @@ class TD3Agent(BaseAgent):
         samples = self.memory.sample_batch()
         states = torch.from_numpy(samples["obs"]).float().to(device)
         next_states = torch.from_numpy(samples["next_obs"]).float().to(device)
-        actions = torch.from_numpy(samples["acts"].reshape(-1, 1)).float().to(device)
-        rewards = torch.from_numpy(samples["rews"].reshape(-1, 1)).float().to(device)
-        dones = torch.from_numpy(samples["done"].reshape(-1, 1)).float().to(device)
+        actions = torch.from_numpy(
+            samples["acts"].reshape(-1, 1)).float().to(device)
+        rewards = torch.from_numpy(
+            samples["rews"].reshape(-1, 1)).float().to(device)
+        dones = torch.from_numpy(
+            samples["done"].reshape(-1, 1)).float().to(device)
         masks = 1 - dones
 
         # get actions with noise
-        noise = torch.from_numpy(self.target_policy_noise.sample()).float().to(device)
+        noise = torch.from_numpy(
+            self.target_policy_noise.sample()).float().to(device)
         clipped_noise = torch.clamp(
-            noise, -self.target_policy_noise_clip, self.target_policy_noise_clip
+            noise, -self.target_policy_noise_clip,
+            self.target_policy_noise_clip,
         )
         next_actions = (self.actor_target(next_states) + clipped_noise).clamp(
             -1.0, 1.0
@@ -230,7 +237,8 @@ class TD3Agent(BaseAgent):
 
             self.actor_optimizer.zero_grad()
             actor_loss.backward()
-            # clip_grad_norm_(self.actor.parameters(), 10.0)  # gradient clipping
+            # # gradient clipping
+            # clip_grad_norm_(self.actor.parameters(), 10.0)
             self.actor_optimizer.step()
 
             # target update
@@ -264,8 +272,10 @@ class TD3Agent(BaseAgent):
                 score = 0
 
             if self.total_step % 1000 == 0:
-                # print("{}: {}".format(self.total_step, sum(scores) / len(scores)))
-                print("{}: {}".format(self.total_step, sum(scores[-100:]) / 100))
+                # print("{}: {}".format(self.total_step,
+                #                       sum(scores) / len(scores)))
+                print("{}: {}".format(self.total_step,
+                                      sum(scores[-100:]) / 100))
 
             # if training is ready
             if (

@@ -90,7 +90,7 @@ class DDPGAgent(BaseAgent):
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu"
         )
-        print(self.device)
+        print("Training device: {}".format(self.device))
 
         # noise
         self.noise = OUNoise(
@@ -109,8 +109,10 @@ class DDPGAgent(BaseAgent):
         self.critic_target.load_state_dict(self.critic.state_dict())
 
         # optimizer and loss
-        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=self.lr_actor)
-        self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=self.lr_critic)
+        self.actor_optimizer = optim.Adam(self.actor.parameters(),
+                                          lr=self.lr_actor)
+        self.critic_optimizer = optim.Adam(self.critic.parameters(),
+                                           lr=self.lr_critic)
         self.loss_criterion = nn.MSELoss()
 
         # transition to store in memory
@@ -163,9 +165,12 @@ class DDPGAgent(BaseAgent):
         samples = self.memory.sample_batch()
         state = torch.from_numpy(samples["obs"]).float().to(device)
         next_state = torch.from_numpy(samples["next_obs"]).float().to(device)
-        action = torch.from_numpy(samples["acts"].reshape(-1, 1)).float().to(device)
-        reward = torch.from_numpy(samples["rews"].reshape(-1, 1)).float().to(device)
-        done = torch.from_numpy(samples["done"].reshape(-1, 1)).float().to(device)
+        action = torch.from_numpy(
+            samples["acts"].reshape(-1, 1)).float().to(device)
+        reward = torch.from_numpy(
+            samples["rews"].reshape(-1, 1)).float().to(device)
+        done = torch.from_numpy(
+            samples["done"].reshape(-1, 1)).float().to(device)
 
         masks = 1 - done
         next_action = self.actor_target(next_state)
@@ -219,8 +224,10 @@ class DDPGAgent(BaseAgent):
                 score = 0
 
             if self.total_step % 1000 == 0:
-                # print("{}: {}".format(self.total_step, sum(scores) / len(scores)))
-                print("{}: {}".format(self.total_step, sum(scores[-100:]) / 100))
+                # print("{}: {}".format(self.total_step,
+                #                       sum(scores) / len(scores)))
+                print("{}: {}".format(self.total_step,
+                                      sum(scores[-100:]) / 100))
 
             # if training is ready
             if (

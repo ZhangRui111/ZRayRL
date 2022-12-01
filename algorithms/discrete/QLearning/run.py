@@ -12,7 +12,8 @@ def train(env, agent):
             a = agent.choose_action(str(s))
             s_, r, done, _ = env.step(a)
             agent.learn(str(s), a, r, str(s_))
-            # print("state {} action {} reward {} next state {}".format(s, a, r, s_))
+            # print("state {} action {} reward {} next state {}".format(
+            #     s, a, r, s_))
             # print(agent.q_table)
             s = s_
 

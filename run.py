@@ -10,10 +10,9 @@ import torch
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("alg", type=str,  default="",
-                        choices=["DQN", "DoubleDQN", "DuelingDQN", "D3QN", "PERDQN",
-                                 "DDPG", "TD3",
-                                 "REINFORCE", "PPO", "A2C", "A3C",
-                                 "SAC", "DiscreteSAC"],
+                        choices=["DQN", "DoubleDQN", "DuelingDQN", "D3QN",
+                                 "PERDQN", "DDPG", "TD3", "REINFORCE", "PPO",
+                                 "A2C", "A3C", "SAC", "DiscreteSAC"],
                         help="the DRL algorithm name.")
     parser.add_argument("act_type", type=str, default="",
                         choices=["discrete", "continuous"],
@@ -39,25 +38,32 @@ def main():
     # algorithm_module = importlib.import_module(algorithm_module_path)
     # ---------- solution 2 ----------
     if opt.alg == "DQN":
-        assert opt.act_type == "discrete", "DQN does not support continuous action space"
+        assert opt.act_type == "discrete", \
+            "DQN does not support continuous action space"
         from algorithms.discrete.DQN.agent import DQNAgent
     elif opt.alg == "DoubleDQN":
-        assert opt.act_type == "discrete", "DoubleDQN does not support continuous action space"
+        assert opt.act_type == "discrete", \
+            "DoubleDQN does not support continuous action space"
         from algorithms.discrete.DoubleDQN.agent import DQNAgent
     elif opt.alg == "DuelingDQN":
-        assert opt.act_type == "discrete", "DuelingDQN does not support continuous action space"
+        assert opt.act_type == "discrete", \
+            "DuelingDQN does not support continuous action space"
         from algorithms.discrete.DuelingDQN.agent import DQNAgent
     elif opt.alg == "PERDQN":
-        assert opt.act_type == "discrete", "PERDQN does not support continuous action space"
+        assert opt.act_type == "discrete", \
+            "PERDQN does not support continuous action space"
         from algorithms.discrete.PERDQN.agent import DQNAgent
     elif opt.alg == "D3QN":
-        assert opt.act_type == "discrete", "D3QN does not support continuous action space"
+        assert opt.act_type == "discrete", \
+            "D3QN does not support continuous action space"
         from algorithms.discrete.D3QN.agent import DQNAgent
     elif opt.alg == "DDPG":
-        assert opt.act_type == "continuous", "DDPG does not support discrete action space"
+        assert opt.act_type == "continuous", \
+            "DDPG does not support discrete action space"
         from algorithms.continuous.DDPG.agent import DDPGAgent
     elif opt.alg == "TD3":
-        assert opt.act_type == "continuous", "TD3 does not support discrete action space"
+        assert opt.act_type == "continuous", \
+            "TD3 does not support discrete action space"
         from algorithms.continuous.TD3.agent import TD3Agent
     elif opt.alg == "REINFORCE":
         if opt.act_type == "discrete":
@@ -100,82 +106,104 @@ def main():
     if opt.alg == "DQN":
         # hyper-parameters
         num_frames = 20000
-        lr = 1e-3
-        memory_size = 1000
-        batch_size = 32
-        target_update = 100
-        epsilon_decay = 1 / 2000  # it takes 2000 frames to reach the min_epsilon
-        agent = DQNAgent(env, obs_dim, action_dim, lr, memory_size,
-                         batch_size, target_update, epsilon_decay)
+        args = {
+            'obs_dim': obs_dim,
+            'action_dim': action_dim,
+            'lr': 1e-3,
+            'memory_size': 1000,
+            'batch_size': 32,
+            'target_update': 100,
+            # it takes 4000 frames to reach the min_epsilon
+            'epsilon_decay': 1 / 2000,
+        }
+        agent = DQNAgent(env, **args)
     elif opt.alg == "DoubleDQN":
         # hyper-parameters
         num_frames = 20000
-        lr = 1e-3
-        memory_size = 1000
-        batch_size = 32
-        target_update = 100
-        epsilon_decay = 1 / 2000  # it takes 2000 frames to reach the min_epsilon
-        agent = DQNAgent(env, obs_dim, action_dim, lr, memory_size,
-                         batch_size, target_update, epsilon_decay)
+        args = {
+            'obs_dim': obs_dim,
+            'action_dim': action_dim,
+            'lr': 1e-3,
+            'memory_size': 1000,
+            'batch_size': 32,
+            'target_update': 100,
+            'epsilon_decay': 1 / 2000,
+        }
+        agent = DQNAgent(env, **args)
     elif opt.alg == "DuelingDQN":
         # hyper-parameters
         num_frames = 20000
-        lr = 1e-3
-        memory_size = 1000
-        batch_size = 32
-        target_update = 100
-        epsilon_decay = 1 / 2000  # it takes 2000 frames to reach the min_epsilon
-        agent = DQNAgent(env, obs_dim, action_dim, lr, memory_size,
-                         batch_size, target_update, epsilon_decay)
+        args = {
+            'obs_dim': obs_dim,
+            'action_dim': action_dim,
+            'lr': 1e-3,
+            'memory_size': 1000,
+            'batch_size': 32,
+            'target_update': 100,
+            'epsilon_decay': 1 / 2000,
+        }
+        agent = DQNAgent(env, **args)
     elif opt.alg == "PERDQN":
         # hyper-parameters
         num_frames = 20000
-        lr = 1e-3
-        memory_size = 1000
-        batch_size = 32
-        target_update = 100
-        epsilon_decay = 1 / 2000  # it takes 2000 frames to reach the min_epsilon
-        alpha = 0.2
-        beta = 0.6
-        prior_eps = 1e-6
-        agent = DQNAgent(env, obs_dim, action_dim, lr, memory_size,
-                         batch_size, target_update, epsilon_decay,
-                         alpha=alpha, beta=beta, prior_eps=prior_eps)
+        args = {
+            'obs_dim': obs_dim,
+            'action_dim': action_dim,
+            'lr': 1e-3,
+            'memory_size': 1000,
+            'batch_size': 32,
+            'target_update': 100,
+            'epsilon_decay': 1 / 2000,
+            'alpha': 0.2,
+            'beta': 0.6,
+            'prior_eps': 1e-6,
+        }
+        agent = DQNAgent(env, **args)
     elif opt.alg == "D3QN":
         # hyper-parameters
         num_frames = 20000
-        lr = 1e-3
-        memory_size = 1000
-        batch_size = 32
-        target_update = 100
-        epsilon_decay = 1 / 2000  # it takes 2000 frames to reach the min_epsilon
-        agent = DQNAgent(env, obs_dim, action_dim, lr, memory_size,
-                         batch_size, target_update, epsilon_decay)
+        args = {
+            'obs_dim': obs_dim,
+            'action_dim': action_dim,
+            'lr': 1e-3,
+            'memory_size': 1000,
+            'batch_size': 32,
+            'target_update': 100,
+            'epsilon_decay': 1 / 2000,
+        }
+        agent = DQNAgent(env, **args)
     elif opt.alg == "DDPG":
         # hyper-parameters
-        num_frames = 50000
-        lr_actor = 3e-4
-        lr_critic = 1e-3
-        memory_size = 100000
-        batch_size = 128
-        ou_noise_theta = 1.0
-        ou_noise_sigma = 0.1
-        initial_random_steps = 10000
-        agent = DDPGAgent(env, obs_dim, action_dim, action_low, action_high,
-                          lr_actor, lr_critic, memory_size,
-                          batch_size, ou_noise_theta, ou_noise_sigma,
-                          initial_random_steps=initial_random_steps)
+        num_frames = 40000
+        args = {
+            'obs_dim': obs_dim,
+            'action_dim': action_dim,
+            'action_low': action_low,
+            'action_high': action_high,
+            'lr_actor': 3e-4,
+            'lr_critic': 1e-3,
+            'memory_size': 50000,
+            'batch_size': 128,
+            'initial_random_steps': 10000,
+            'ou_noise_theta': 1.0,
+            'ou_noise_sigma': 0.1,
+        }
+        agent = DDPGAgent(env, **args)
     elif opt.alg == "TD3":
         # hyper-parameters
-        num_frames = 50000
-        lr_actor = 3e-4
-        lr_critic = 1e-3
-        memory_size = 100000
-        batch_size = 128
-        initial_random_steps = 10000
-        agent = TD3Agent(env, obs_dim, action_dim, action_low, action_high,
-                         lr_actor, lr_critic, memory_size,
-                         batch_size, initial_random_steps=initial_random_steps)
+        num_frames = 40000
+        args = {
+            'obs_dim': obs_dim,
+            'action_dim': action_dim,
+            'action_low': action_low,
+            'action_high': action_high,
+            'lr_actor': 3e-4,
+            'lr_critic': 1e-3,
+            'memory_size': 50000,
+            'batch_size': 128,
+            'initial_random_steps': 10000,
+        }
+        agent = TD3Agent(env, **args)
     elif opt.alg == "REINFORCE":
         if opt.act_type == "discrete":
             # hyper-parameters

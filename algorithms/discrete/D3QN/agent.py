@@ -81,7 +81,7 @@ class DQNAgent(BaseAgent):
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu"
         )
-        print(self.device)
+        print("Training device: {}".format(self.device))
 
         # networks: dqn, dqn_target
         self.dqn = Network(self.obs_dim, self.action_dim).to(self.device)
@@ -190,9 +190,12 @@ class DQNAgent(BaseAgent):
         device = self.device  # for shortening the following lines
         state = torch.from_numpy(samples["obs"]).float().to(device)
         next_state = torch.from_numpy(samples["next_obs"]).float().to(device)
-        action = torch.from_numpy(samples["acts"].reshape(-1, 1)).long().to(device)
-        reward = torch.from_numpy(samples["rews"].reshape(-1, 1)).float().to(device)
-        done = torch.from_numpy(samples["done"].reshape(-1, 1)).float().to(device)
+        action = torch.from_numpy(
+            samples["acts"].reshape(-1, 1)).long().to(device)
+        reward = torch.from_numpy(
+            samples["rews"].reshape(-1, 1)).float().to(device)
+        done = torch.from_numpy(
+            samples["done"].reshape(-1, 1)).float().to(device)
 
         # G_t   = r + gamma * v(s_{t+1})  if state != Terminal
         #       = r                       otherwise

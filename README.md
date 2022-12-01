@@ -1,6 +1,6 @@
 # ZRayRL
 
-This project is a RL toolbox with a basic/concise and consistent implementation.
+This project is a beginner-friendly RL toolbox with a basic/concise and consistent implementation.
 
 ## I. Installation and Run
 ### I.1. Main Dependencies

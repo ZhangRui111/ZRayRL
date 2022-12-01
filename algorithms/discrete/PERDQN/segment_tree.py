@@ -42,11 +42,13 @@ class SegmentTree:
             return self._operate_helper(start, end, 2 * node, node_start, mid)
         else:
             if mid + 1 <= start:
-                return self._operate_helper(start, end, 2 * node + 1, mid + 1, node_end)
+                return self._operate_helper(start, end, 2 * node + 1, mid + 1,
+                                            node_end)
             else:
                 return self.operation(
                     self._operate_helper(start, mid, 2 * node, node_start, mid),
-                    self._operate_helper(mid + 1, end, 2 * node + 1, mid + 1, node_end),
+                    self._operate_helper(mid + 1, end, 2 * node + 1, mid + 1,
+                                         node_end),
                 )
 
     def operate(self, start: int = 0, end: int = 0) -> float:
@@ -64,7 +66,8 @@ class SegmentTree:
 
         idx //= 2
         while idx >= 1:
-            self.tree[idx] = self.operation(self.tree[2 * idx], self.tree[2 * idx + 1])
+            self.tree[idx] = self.operation(self.tree[2 * idx],
+                                            self.tree[2 * idx + 1])
             idx //= 2
 
     def __getitem__(self, idx: int) -> float:
@@ -98,7 +101,8 @@ class SumSegmentTree(SegmentTree):
     def retrieve(self, upperbound: float) -> int:
         """ Find the highest index `i` about upper bound in the tree. """
         # TODO: Check assert case and fix bug
-        assert 0 <= upperbound <= self.sum() + 1e-5, "upperbound: {}".format(upperbound)
+        assert 0 <= upperbound <= self.sum() + 1e-5, \
+            "upperbound: {}".format(upperbound)
 
         idx = 1
         while idx < self.capacity:  # while non-leaf

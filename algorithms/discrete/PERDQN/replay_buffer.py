@@ -2,7 +2,8 @@ import numpy as np
 import random
 from typing import Dict, List
 
-from algorithms.discrete.PERDQN.segment_tree import SumSegmentTree, MinSegmentTree
+from algorithms.discrete.PERDQN.segment_tree import SumSegmentTree, \
+    MinSegmentTree
 
 
 class PrioritizedReplayBuffer:
