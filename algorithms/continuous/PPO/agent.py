@@ -4,13 +4,32 @@ import torch.nn as nn
 import torch.optim as optim
 
 # from torch.nn.utils import clip_grad_norm_  # gradient clipping
-from typing import Tuple
+from typing import Tuple, List
 
 from algorithms.base_agent import BaseAgent
 from algorithms.continuous.action_normalizer import ActionNormalizer
 from networks.continuous.PPO import *
 from algorithms.continuous.PPO.gae import compute_gae
-from algorithms.continuous.PPO.memory import Memory
+
+
+def ppo_iter(
+        epoch: int,
+        mini_batch_size: int,
+        states: torch.Tensor,
+        actions: torch.Tensor,
+        values: torch.Tensor,
+        log_probs: torch.Tensor,
+        returns: torch.Tensor,
+        advantages: torch.Tensor,
+):
+    """ Yield mini-batches. """
+    batch_size = states.size(0)
+    for _ in range(epoch):
+        for _ in range(batch_size // mini_batch_size):
+            rand_ids = np.random.choice(batch_size, mini_batch_size)
+            yield states[rand_ids, :], actions[rand_ids], values[
+                rand_ids
+            ], log_probs[rand_ids], returns[rand_ids], advantages[rand_ids]
 
 
 class PPOAgent(BaseAgent):
@@ -31,7 +50,6 @@ class PPOAgent(BaseAgent):
         rollout_len (int): the number of rollout
         entropy_weight (float): rate of weighting entropy into the loss function
         device (torch.device): cpu / gpu
-        transition (list): temporary storage for the recent transition
         total_step (int): total step numbers
         is_test (bool): flag to show the current mode (train / test)
     """
@@ -68,7 +86,8 @@ class PPOAgent(BaseAgent):
         :param epsilon (float): amount of clipping surrogate objective
         :param epoch (int): the number of update
         :param rollout_len (int): the number of rollout
-        :param entropy_weight (float): rate of weighting entropy into the loss function
+        :param entropy_weight (float): rate of weighting entropy into the
+                                       loss function
         """
         super(PPOAgent, self).__init__()
 
@@ -90,18 +109,25 @@ class PPOAgent(BaseAgent):
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu"
         )
-        print(self.device)
+        print("Training device: {}".format(self.device))
 
         # networks
         self.actor = Actor(obs_dim, action_dim).to(self.device)
         self.critic = Critic(obs_dim).to(self.device)
 
         # optimizer and loss
-        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=self.lr_actor)
-        self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=self.lr_critic)
+        self.actor_optimizer = optim.Adam(self.actor.parameters(),
+                                          lr=self.lr_actor)
+        self.critic_optimizer = optim.Adam(self.critic.parameters(),
+                                           lr=self.lr_critic)
 
         # memory for training
-        self.memory = Memory()
+        self.states: List[torch.Tensor] = []
+        self.actions: List[torch.Tensor] = []
+        self.rewards: List[torch.Tensor] = []
+        self.values: List[torch.Tensor] = []
+        self.masks: List[torch.Tensor] = []
+        self.log_probs: List[torch.Tensor] = []
 
         # total steps count
         self.total_step = 1
@@ -117,14 +143,15 @@ class PPOAgent(BaseAgent):
 
         if not self.is_test:
             value = self.critic(state)
-            self.memory.states.append(state)
-            self.memory.actions.append(selected_action)
-            self.memory.values.append(value)
-            self.memory.log_probs.append(dist.log_prob(selected_action))
+            self.states.append(state)
+            self.actions.append(selected_action)
+            self.values.append(value)
+            self.log_probs.append(dist.log_prob(selected_action))
 
         return selected_action.clamp(-1.0, 1.0).detach().cpu().numpy()
 
-    def step(self, action: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def step(self, action: np.ndarray) \
+            -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """ Take an action and return the response of the env. """
         action = self.action_normalizer.reverse_action(action)
         next_state, reward, terminated, truncated, _ = self.env.step(action)
@@ -135,8 +162,8 @@ class PPOAgent(BaseAgent):
         done = np.reshape(done, (1, -1))
 
         if not self.is_test:
-            self.memory.rewards.append(torch.from_numpy(reward).float().to(self.device))
-            self.memory.masks.append(torch.from_numpy(1 - done).float().to(self.device))
+            self.rewards.append(torch.FloatTensor(reward).to(self.device))
+            self.masks.append(torch.FloatTensor(1 - done).to(self.device))
 
         return next_state, reward, done
 
@@ -149,64 +176,69 @@ class PPOAgent(BaseAgent):
 
         returns = compute_gae(
             next_value,
-            self.memory.rewards,
-            self.memory.masks,
-            self.memory.values,
+            self.rewards,
+            self.masks,
+            self.values,
             self.gamma,
             self.tau,
         )
 
-        states = torch.cat(self.memory.states).view(-1, self.obs_dim)
-        actions = torch.cat(self.memory.actions)
+        states = torch.cat(self.states).view(-1, self.obs_dim)
+        actions = torch.cat(self.actions)
         returns = torch.cat(returns).detach()
-        values = torch.cat(self.memory.values).detach()
-        log_probs = torch.cat(self.memory.log_probs).detach()
+        values = torch.cat(self.values).detach()
+        log_probs = torch.cat(self.log_probs).detach()
         advantages = returns - values
 
-        full_size = states.size(0)
-        n_update = full_size // self.batch_size
-        for _ in range(self.epoch):
-            for _ in range(n_update):
-                rand_ids = np.random.choice(full_size, self.batch_size)
-                state, action, old_value = states[rand_ids, :], actions[rand_ids], values[rand_ids]
-                old_log_prob, return_, adv = log_probs[rand_ids], returns[rand_ids], advantages[rand_ids]
+        for state, action, old_value, old_log_prob, return_, adv in ppo_iter(
+                epoch=self.epoch,
+                mini_batch_size=self.batch_size,
+                states=states,
+                actions=actions,
+                values=values,
+                log_probs=log_probs,
+                returns=returns,
+                advantages=advantages,
+        ):
+            # calculate ratios
+            _, dist = self.actor(state)
+            log_prob = dist.log_prob(action)
+            ratio = (log_prob - old_log_prob).exp()
 
-                # calculate ratios
-                _, dist = self.actor(state)
-                log_prob = dist.log_prob(action)
-                ratio = (log_prob - old_log_prob).exp()
+            # actor_loss
+            surr_loss = ratio * adv
+            clipped_surr_loss = (
+                    torch.clamp(ratio, 1.0 - self.epsilon,
+                                1.0 + self.epsilon) * adv
+            )
 
-                # actor_loss
-                surr_loss = ratio * adv
-                clipped_surr_loss = (
-                        torch.clamp(ratio, 1.0 - self.epsilon, 1.0 + self.epsilon) * adv
-                )
+            # entropy
+            entropy = dist.entropy().mean()
 
-                # entropy
-                entropy = dist.entropy().mean()
+            actor_loss = (
+                    - torch.min(surr_loss, clipped_surr_loss).mean()
+                    - entropy * self.entropy_weight
+            )
 
-                actor_loss = (
-                        - torch.min(surr_loss, clipped_surr_loss).mean()
-                        - entropy * self.entropy_weight
-                )
+            # critic_loss
+            value = self.critic(state)
+            critic_loss = (return_ - value).pow(2).mean()
 
-                # critic_loss
-                value = self.critic(state)
-                critic_loss = (return_ - value).pow(2).mean()
+            # train critic
+            self.critic_optimizer.zero_grad()
+            critic_loss.backward(retain_graph=True)
+            # clip_grad_norm_(self.critic.parameters(), 10.0)
+            self.critic_optimizer.step()
 
-                # train critic
-                self.critic_optimizer.zero_grad()
-                critic_loss.backward(retain_graph=True)
-                # clip_grad_norm_(self.critic.parameters(), 10.0)  # gradient clipping
-                self.critic_optimizer.step()
+            # train actor
+            self.actor_optimizer.zero_grad()
+            actor_loss.backward()
+            # clip_grad_norm_(self.actor.parameters(), 10.0)
+            self.actor_optimizer.step()
 
-                # train actor
-                self.actor_optimizer.zero_grad()
-                actor_loss.backward()
-                # clip_grad_norm_(self.actor.parameters(), 10.0)  # gradient clipping
-                self.actor_optimizer.step()
-
-        self.memory.clear()
+        # clear the memory
+        self.states, self.actions, self.rewards = [], [], []
+        self.values, self.masks, self.log_probs = [], [], []
 
         return actor_loss.item(), critic_loss.item()
 
@@ -237,8 +269,10 @@ class PPOAgent(BaseAgent):
                     score = 0
 
                 if self.total_step % 1000 == 0:
-                    # print("{}: {}".format(self.total_step, sum(scores) / len(scores)))
-                    print("{}: {}".format(self.total_step, sum(scores[-100:]) / 100))
+                    # print("{}: {}".format(self.total_step,
+                    #                       sum(scores) / len(scores)))
+                    print("{}: {}".format(self.total_step,
+                                          sum(scores[-100:]) / 100))
 
             actor_loss, critic_loss = self.update_model(next_state)
             actor_losses.append(actor_loss)

@@ -91,11 +91,13 @@ def main():
     if opt.act_type == "discrete":
         env_id = "CartPole-v1"
         env = gym.make(env_id, new_step_api=True)
+        env.seed(0)
         obs_dim = env.observation_space.shape[0]
         action_dim = env.action_space.n
     elif opt.act_type == "continuous":
         env_id = "Pendulum-v1"
         env = gym.make(env_id, new_step_api=True)
+        env.seed(0)
         obs_dim = env.observation_space.shape[0]
         action_dim = env.action_space.shape[0]
         action_low = env.action_space.low
@@ -221,22 +223,40 @@ def main():
     elif opt.alg == "PPO":
         if opt.act_type == "discrete":
             # hyper-parameters
-            num_frames = 50000
-            lr_actor = 2e-3
-            lr_critic = 5e-3
-            batch_size = 128
-            agent = PPOAgent(env, obs_dim, action_dim,
-                             lr_actor, lr_critic, batch_size, gamma=0.9, tau=0.8,
-                             epsilon=0.2, epoch=32, rollout_len=1024, entropy_weight=0.005)
+            num_frames = 20000
+            args = {
+                'obs_dim': obs_dim,
+                'action_dim': action_dim,
+                'lr_actor': 3e-4,
+                'lr_critic': 1e-3,
+                'batch_size': 128,
+                'gamma': 0.99,
+                'tau': 0.8,
+                'epsilon': 0.2,
+                'epoch': 32,
+                'rollout_len': 256,
+                'entropy_weight': 0.001,
+            }
+            agent = PPOAgent(env, **args)
         else:
             # hyper-parameters
             num_frames = 50000
-            lr_actor = 2e-3
-            lr_critic = 5e-3
-            batch_size = 128
-            agent = PPOAgent(env, obs_dim, action_dim, action_low, action_high,
-                             lr_actor, lr_critic, batch_size, gamma=0.9, tau=0.8,
-                             epsilon=0.2, epoch=32, rollout_len=1024, entropy_weight=0.005)
+            args = {
+                'obs_dim': obs_dim,
+                'action_dim': action_dim,
+                'action_low': action_low,
+                'action_high': action_high,
+                'lr_actor': 2e-3,
+                'lr_critic': 5e-3,
+                'batch_size': 128,
+                'gamma': 0.99,
+                'tau': 0.8,
+                'epsilon': 0.2,
+                'epoch': 32,
+                'rollout_len': 1024,
+                'entropy_weight': 0.005,
+            }
+            agent = PPOAgent(env, **args)
     elif opt.alg == "A2C":
         if opt.act_type == "discrete":
             # hyper-parameters

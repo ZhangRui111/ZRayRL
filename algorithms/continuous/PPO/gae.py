@@ -2,14 +2,8 @@ from collections import deque
 from typing import List, Deque
 
 
-def compute_gae(
-    next_value: list,
-    rewards: list,
-    masks: list,
-    values: list,
-    gamma: float,
-    tau: float
-) -> List:
+def compute_gae(next_value: list, rewards: list, masks: list,
+                values: list, gamma: float, tau: float) -> List:
     """
     Compute the GAE (Generalized Advantage Estimation).
     GAE help to reduce variance while maintaining a proper level of bias.

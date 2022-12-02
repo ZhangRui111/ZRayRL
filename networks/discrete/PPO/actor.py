@@ -12,7 +12,7 @@ class Actor(nn.Module):
             nn.Linear(in_dim, 32),
             nn.ReLU(),
             nn.Linear(32, out_dim),
-            nn.Softmax(dim=-1)
+            nn.Softmax(dim=-1),
         )
 
     def forward(
@@ -21,5 +21,26 @@ class Actor(nn.Module):
                torch.distributions.distribution.Distribution]:
         prob = self.layers(state)
         dist = Categorical(prob)
+        action = dist.sample()
+        return action, dist
+
+
+class ActorLogits(nn.Module):
+    """ output logits for the Categorical. """
+    def __init__(self, in_dim: int, out_dim: int):
+        super(ActorLogits, self).__init__()
+
+        self.layers = nn.Sequential(
+            nn.Linear(in_dim, 32),
+            nn.ReLU(),
+            nn.Linear(32, out_dim),
+        )
+
+    def forward(
+            self, state: torch.Tensor
+    ) -> Tuple[torch.Tensor,
+               torch.distributions.distribution.Distribution]:
+        logits = self.layers(state)
+        dist = Categorical(logits=logits)
         action = dist.sample()
         return action, dist
