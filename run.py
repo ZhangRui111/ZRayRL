@@ -81,7 +81,8 @@ def main():
         else:
             from algorithms.continuous.A2C.agent import A2CAgent
     elif opt.alg == "SAC":
-        assert opt.act_type == "continuous", "SAC does not support discrete action space"
+        assert opt.act_type == "continuous", \
+            "SAC does not support discrete action space"
         from algorithms.continuous.SAC.agent import SACAgent
     else:
         raise NotImplementedError("{} is not implemented".format(opt.alg))
@@ -174,7 +175,7 @@ def main():
         agent = DQNAgent(env, **args)
     elif opt.alg == "DDPG":
         # hyper-parameters
-        num_frames = 40000
+        num_frames = 50000
         args = {
             'obs_dim': obs_dim,
             'action_dim': action_dim,
@@ -191,7 +192,7 @@ def main():
         agent = DDPGAgent(env, **args)
     elif opt.alg == "TD3":
         # hyper-parameters
-        num_frames = 40000
+        num_frames = 50000
         args = {
             'obs_dim': obs_dim,
             'action_dim': action_dim,
@@ -254,15 +255,20 @@ def main():
     elif opt.alg == "SAC":
         # hyper-parameters
         num_frames = 50000
-        lr_actor = 1e-3
-        lr_critic_q = 3e-3
-        lr_critic_v = 3e-3
-        memory_size = 100000
-        batch_size = 128
-        initial_random_steps = 10000
-        agent = SACAgent(env, obs_dim, action_dim, action_low, action_high,
-                         lr_actor, lr_critic_q, lr_critic_v, memory_size,
-                         batch_size, initial_random_steps=initial_random_steps)
+        args = {
+            'obs_dim': obs_dim,
+            'action_dim': action_dim,
+            'action_low': action_low,
+            'action_high': action_high,
+            'lr_actor': 1e-3,
+            'lr_critic_q': 3e-3,
+            'lr_critic_v': 3e-3,
+            'memory_size': 50000,
+            'batch_size': 128,
+            'initial_random_steps': 10000,
+        }
+
+        agent = SACAgent(env, **args)
     else:
         raise NotImplementedError("{} is not implemented".format(opt.alg))
 

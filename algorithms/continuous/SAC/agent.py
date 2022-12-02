@@ -96,7 +96,7 @@ class SACAgent(BaseAgent):
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu"
         )
-        print(self.device)
+        print("Training device: {}".format(self.device))
 
         # automatic entropy tuning
         self.target_entropy = -np.prod((action_dim,)).item()  # heuristic
@@ -116,10 +116,14 @@ class SACAgent(BaseAgent):
         self.qf_2 = CriticQ(obs_dim + action_dim).to(self.device)
 
         # optimizers
-        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=self.lr_actor)
-        self.vf_optimizer = optim.Adam(self.vf.parameters(), lr=self.lr_critic_v)
-        self.qf_1_optimizer = optim.Adam(self.qf_1.parameters(), lr=self.lr_critic_q)
-        self.qf_2_optimizer = optim.Adam(self.qf_2.parameters(), lr=self.lr_critic_q)
+        self.actor_optimizer = optim.Adam(self.actor.parameters(),
+                                          lr=self.lr_actor)
+        self.vf_optimizer = optim.Adam(self.vf.parameters(),
+                                       lr=self.lr_critic_v)
+        self.qf_1_optimizer = optim.Adam(self.qf_1.parameters(),
+                                         lr=self.lr_critic_q)
+        self.qf_2_optimizer = optim.Adam(self.qf_2.parameters(),
+                                         lr=self.lr_critic_q)
         self.loss_criterion = nn.MSELoss()
 
         # transition to store in memory
@@ -167,15 +171,17 @@ class SACAgent(BaseAgent):
         samples = self.memory.sample_batch()
         state = torch.from_numpy(samples["obs"]).float().to(device)
         next_state = torch.from_numpy(samples["next_obs"]).float().to(device)
-        action = torch.from_numpy(samples["acts"].reshape(-1, 1)).float().to(device)
-        reward = torch.from_numpy(samples["rews"].reshape(-1, 1)).float().to(device)
-        done = torch.from_numpy(samples["done"].reshape(-1, 1)).float().to(device)
+        action = torch.from_numpy(
+            samples["acts"].reshape(-1, 1)).float().to(device)
+        reward = torch.from_numpy(
+            samples["rews"].reshape(-1, 1)).float().to(device)
+        done = torch.from_numpy(
+            samples["done"].reshape(-1, 1)).float().to(device)
         new_action, log_prob = self.actor(state)
 
         # train alpha (dual problem)
-        alpha_loss = (
-                -self.log_alpha.exp() * (log_prob + self.target_entropy).detach()
-        ).mean()
+        alpha_loss = (-self.log_alpha.exp()
+                      * (log_prob + self.target_entropy).detach()).mean()
 
         self.alpha_optimizer.zero_grad()
         alpha_loss.backward()
@@ -231,7 +237,8 @@ class SACAgent(BaseAgent):
         vf_loss.backward()
         self.vf_optimizer.step()
 
-        return actor_loss.item(), qf_loss.item(), vf_loss.item(), alpha_loss.item()
+        return actor_loss.item(), qf_loss.item(), vf_loss.item(), \
+               alpha_loss.item()
 
     def train(self, num_frames: int):
         """ Train the agent. """
@@ -256,8 +263,10 @@ class SACAgent(BaseAgent):
                 score = 0
 
             if self.total_step % 1000 == 0:
-                # print("{}: {}".format(self.total_step, sum(scores) / len(scores)))
-                print("{}: {}".format(self.total_step, sum(scores[-100:]) / 100))
+                # print("{}: {}".format(self.total_step,
+                #                       sum(scores) / len(scores)))
+                print("{}: {}".format(self.total_step,
+                                      sum(scores[-100:]) / 100))
 
             # if training is ready
             if (
