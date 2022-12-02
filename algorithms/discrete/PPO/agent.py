@@ -133,7 +133,8 @@ class PPOAgent(BaseAgent):
         """ Select an action. """
         state = torch.from_numpy(state).float().to(self.device)
         action, dist = self.actor(state)
-        selected_action = torch.argmax(dist.probs).unsqueeze(0) if self.is_test else action
+        selected_action = torch.argmax(dist.probs).unsqueeze(0) \
+            if self.is_test else action
 
         if not self.is_test:
             value = self.critic(state)
@@ -144,7 +145,8 @@ class PPOAgent(BaseAgent):
 
         return selected_action.detach().cpu().numpy()[0]
 
-    def step(self, action: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def step(self, action: np.ndarray) \
+            -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """ Take an action and return the response of the env. """
         next_state, reward, terminated, truncated, _ = self.env.step(action)
         done = terminated  # for the CartPole
@@ -154,8 +156,10 @@ class PPOAgent(BaseAgent):
         done = np.reshape(done, (1, -1))
 
         if not self.is_test:
-            self.rewards.append(torch.from_numpy(reward).float().to(self.device))
-            self.masks.append(torch.from_numpy(1 - done).float().to(self.device))
+            self.rewards.append(
+                torch.from_numpy(reward).float().to(self.device))
+            self.masks.append(
+                torch.from_numpy(1 - done).float().to(self.device))
 
         return next_state, reward, done
 
@@ -243,7 +247,7 @@ class PPOAgent(BaseAgent):
         scores = []  # episodic cumulated reward
 
         state = self.env.reset()
-        # Expanding the shape is necessary for tensor.cat() in the update_model()
+        # Expanding the shape is necessary for tensor.cat()
         state = np.expand_dims(state, axis=0)
         score = 0
         while self.total_step <= num_frames + 1:
