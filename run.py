@@ -66,10 +66,9 @@ def main():
             "TD3 does not support discrete action space"
         from algorithms.continuous.TD3.agent import TD3Agent
     elif opt.alg == "REINFORCE":
-        if opt.act_type == "discrete":
-            from algorithms.discrete.REINFORCE.agent import REINFORCEAgent
-        else:
-            from algorithms.continuous.REINFORCE.agent import REINFORCEAgent
+        assert opt.act_type == "discrete", \
+            "REINFORCE does not support continuous action space"
+        from algorithms.discrete.REINFORCE.agent import REINFORCEAgent
     elif opt.alg == "PPO":
         if opt.act_type == "discrete":
             from algorithms.discrete.PPO.agent import PPOAgent
@@ -208,18 +207,16 @@ def main():
         }
         agent = TD3Agent(env, **args)
     elif opt.alg == "REINFORCE":
-        if opt.act_type == "discrete":
-            # hyper-parameters
-            num_frames = 50000
-            lr = 5e-3
-            agent = REINFORCEAgent(env, obs_dim, action_dim,
-                                   lr, gamma=0.9, entropy_weight=0.01)
-        else:
-            # hyper-parameters
-            num_frames = 50000
-            lr = 5e-3
-            agent = REINFORCEAgent(env, obs_dim, action_dim, action_low, action_high,
-                                   lr, gamma=0.9, entropy_weight=0.01)
+        # hyper-parameters
+        num_frames = 20000
+        args = {
+            'obs_dim': obs_dim,
+            'action_dim': action_dim,
+            'lr': 5e-3,
+            'gamma': 0.99,
+            'entropy_weight': 0.01,
+        }
+        agent = REINFORCEAgent(env, **args)
     elif opt.alg == "PPO":
         if opt.act_type == "discrete":
             # hyper-parameters

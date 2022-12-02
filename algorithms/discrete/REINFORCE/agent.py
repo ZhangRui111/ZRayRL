@@ -41,7 +41,8 @@ class REINFORCEAgent(BaseAgent):
         :param action_dim: action dimension
         :param lr (float): learning rate
         :param gamma (float): discount factor
-        :param entropy_weight (float): rate of weighting entropy into the loss function
+        :param entropy_weight (float): rate of weighting entropy into the
+                                       loss function
         """
         super(REINFORCEAgent, self).__init__()
 
@@ -56,7 +57,7 @@ class REINFORCEAgent(BaseAgent):
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu"
         )
-        print(self.device)
+        print("Training device: {}".format(self.device))
 
         # networks
         self.policy = Policy(obs_dim, action_dim).to(self.device)
@@ -79,7 +80,8 @@ class REINFORCEAgent(BaseAgent):
         """ Select an action. """
         state = torch.from_numpy(state).float().unsqueeze(0).to(self.device)
         action, dist = self.policy(state)
-        selected_action = torch.argmax(dist.probs).unsqueeze(0) if self.is_test else action
+        selected_action = torch.argmax(dist.probs).unsqueeze(0) \
+            if self.is_test else action
 
         if not self.is_test:
             self.saved_log_probs.append(dist.log_prob(selected_action))
@@ -105,6 +107,7 @@ class REINFORCEAgent(BaseAgent):
             R = r + self.gamma * R
             returns.insert(0, R)
         returns = torch.tensor(returns)
+        # return normalization
         returns = (returns - returns.mean()) / (returns.std() + self.eps)
 
         for log_prob, R in zip(self.saved_log_probs, returns):
@@ -150,8 +153,10 @@ class REINFORCEAgent(BaseAgent):
                 score = 0
 
             if self.total_step % 1000 == 0:
-                # print("{}: {}".format(self.total_step, sum(scores) / len(scores)))
-                print("{}: {}".format(self.total_step, sum(scores[-100:]) / 100))
+                # print("{}: {}".format(self.total_step,
+                #                       sum(scores) / len(scores)))
+                print("{}: {}".format(self.total_step,
+                                      sum(scores[-100:]) / 100))
 
         # termination
         self.env.close()
@@ -170,6 +175,11 @@ class REINFORCEAgent(BaseAgent):
                 next_state, reward, done = self.step(action)
                 state = next_state
                 score += reward
+
+                # # manually termination for Cart-Pole
+                # if score >= 500:
+                #     done = True
+
             avg_score.append(score)
 
         print("Average score: {}".format(sum(avg_score) / len(avg_score)))

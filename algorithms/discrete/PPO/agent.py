@@ -288,6 +288,11 @@ class PPOAgent(BaseAgent):
                 next_state, reward, done = self.step(action)
                 state = next_state
                 score += reward
+
+                # # manually termination for Cart-Pole
+                # if score >= 500:
+                #     done = True
+
             avg_score.append(score)
 
         print("Average score: {}".format(sum(avg_score) / len(avg_score)))

@@ -2,6 +2,7 @@ __pycache__/
 .idea/
 logs/
 backup/
+deprecated/
 
 demo.py
 Note.md
