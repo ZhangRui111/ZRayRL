@@ -46,7 +46,8 @@ class A2CAgent(BaseAgent):
         :param lr_actor (float): learning rate for the actor
         :param lr_critic (float): learning rate for the critic
         :param gamma (float): discount factor
-        :param entropy_weight (float): rate of weighting entropy into the loss function
+        :param entropy_weight (float): rate of weighting entropy into the
+                                       loss function
         """
         super(A2CAgent, self).__init__()
 
@@ -62,16 +63,18 @@ class A2CAgent(BaseAgent):
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu"
         )
-        print(self.device)
+        print("Training device: {}".format(self.device))
 
         # networks
         self.actor = Actor(obs_dim, action_dim).to(self.device)
         self.critic = Critic(obs_dim).to(self.device)
 
         # optimizer and loss
-        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=self.lr_actor)
-        self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=self.lr_critic)
-        self.loss_criterion = nn.SmoothL1Loss()
+        self.actor_optimizer = optim.Adam(self.actor.parameters(),
+                                          lr=self.lr_actor)
+        self.critic_optimizer = optim.Adam(self.critic.parameters(),
+                                           lr=self.lr_critic)
+        self.loss_criterion = nn.MSELoss()
 
         # transition (state, log_prob, next_state, reward, done)
         self.transition: list = list()
@@ -90,7 +93,8 @@ class A2CAgent(BaseAgent):
 
         if not self.is_test:
             log_prob = dist.log_prob(selected_action).sum(dim=-1)
-            self.transition = [state, log_prob]
+            entropy_term = dist.entropy().mean()
+            self.transition = [state, log_prob, entropy_term]
 
         return selected_action.detach().cpu().numpy()
 
@@ -106,7 +110,8 @@ class A2CAgent(BaseAgent):
 
     def update_model(self) -> Tuple[float, float]:
         """ Update the model by gradient descent. """
-        state, log_prob, next_state, reward, done = self.transition
+        state, log_prob, entropy_term, next_state, reward, done \
+            = self.transition
 
         # Q_t   = r + gamma * V(s_{t+1})  if state != Terminal
         #       = r                       otherwise
@@ -125,7 +130,7 @@ class A2CAgent(BaseAgent):
         # advantage = Q_t - V(s_t)
         advantage = (targ_value - pred_value).detach()  # not back-propagated
         actor_loss = -advantage * log_prob
-        actor_loss += self.entropy_weight * -log_prob  # entropy maximization
+        actor_loss -= self.entropy_weight * entropy_term  # entropy maximization
 
         # update policy
         self.actor_optimizer.zero_grad()
@@ -164,8 +169,10 @@ class A2CAgent(BaseAgent):
                 score = 0
 
             if self.total_step % 1000 == 0:
-                # print("{}: {}".format(self.total_step, sum(scores) / len(scores)))
-                print("{}: {}".format(self.total_step, sum(scores[-100:]) / 100))
+                # print("{}: {}".format(self.total_step,
+                #                       sum(scores) / len(scores)))
+                print("{}: {}".format(self.total_step,
+                                      sum(scores[-100:]) / 100))
 
         # termination
         self.env.close()
@@ -184,6 +191,11 @@ class A2CAgent(BaseAgent):
                 next_state, reward, done = self.step(action)
                 state = next_state
                 score += reward
+
+                # # manually termination for Cart-Pole
+                # if score >= 500:
+                #     done = True
+
             avg_score.append(score)
 
         print("Average score: {}".format(sum(avg_score) / len(avg_score)))

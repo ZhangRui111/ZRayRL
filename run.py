@@ -257,14 +257,14 @@ def main():
     elif opt.alg == "A2C":
         if opt.act_type == "discrete":
             # hyper-parameters
-            num_frames = 40000
+            num_frames = 20000
             args = {
                 'obs_dim': obs_dim,
                 'action_dim': action_dim,
-                'lr_actor': 2e-5,
-                'lr_critic': 4e-5,
+                'lr_actor': 3e-4,
+                'lr_critic': 1e-3,
                 'gamma': 0.99,
-                'entropy_weight': 0.01,
+                'entropy_weight': 0.001,
             }
             agent = A2CAgent(env, **args)
         else:
