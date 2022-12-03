@@ -7,9 +7,9 @@ class Critic(nn.Module):
         super(Critic, self).__init__()
 
         self.layers = nn.Sequential(
-            nn.Linear(in_dim, 64),
+            nn.Linear(in_dim, 128),
             nn.ReLU(),
-            nn.Linear(64, 1),
+            nn.Linear(128, 1),
         )
 
     def forward(self, state: torch.Tensor) -> torch.Tensor:

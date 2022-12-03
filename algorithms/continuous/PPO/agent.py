@@ -209,16 +209,14 @@ class PPOAgent(BaseAgent):
             surr_loss = ratio * adv
             clipped_surr_loss = (
                     torch.clamp(ratio, 1.0 - self.epsilon,
-                                1.0 + self.epsilon) * adv
-            )
+                                1.0 + self.epsilon) * adv)
 
             # entropy
             entropy = dist.entropy().mean()
 
             actor_loss = (
                     - torch.min(surr_loss, clipped_surr_loss).mean()
-                    - entropy * self.entropy_weight
-            )
+                    - entropy * self.entropy_weight)  # entropy maximization
 
             # critic_loss
             value = self.critic(state)

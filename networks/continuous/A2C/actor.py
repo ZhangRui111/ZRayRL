@@ -9,15 +9,15 @@ class Actor(nn.Module):
         super(Actor, self).__init__()
 
         self.hidden = nn.Sequential(
-            nn.Linear(in_dim, 32),
+            nn.Linear(in_dim, 128),
             nn.ReLU(),
         )
         self.mu_layer = nn.Sequential(
-            nn.Linear(32, out_dim),
+            nn.Linear(128, out_dim),
             nn.Tanh(),
         )
         self.log_std_layer = nn.Sequential(
-            nn.Linear(32, out_dim),
+            nn.Linear(128, out_dim),
             nn.Softplus(),
         )
 

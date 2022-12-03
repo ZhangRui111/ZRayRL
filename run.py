@@ -257,18 +257,30 @@ def main():
     elif opt.alg == "A2C":
         if opt.act_type == "discrete":
             # hyper-parameters
-            num_frames = 50000
-            lr_actor = 1e-3
-            lr_critic = 2e-3
-            agent = A2CAgent(env, obs_dim, action_dim,
-                             lr_actor, lr_critic, gamma=0.9, entropy_weight=0.01)
+            num_frames = 40000
+            args = {
+                'obs_dim': obs_dim,
+                'action_dim': action_dim,
+                'lr_actor': 2e-5,
+                'lr_critic': 4e-5,
+                'gamma': 0.99,
+                'entropy_weight': 0.01,
+            }
+            agent = A2CAgent(env, **args)
         else:
             # hyper-parameters
-            num_frames = 50000
-            lr_actor = 2e-3
-            lr_critic = 5e-3
-            agent = A2CAgent(env, obs_dim, action_dim, action_low, action_high,
-                             lr_actor, lr_critic, gamma=0.9, entropy_weight=0.01)
+            num_frames = 80000
+            args = {
+                'obs_dim': obs_dim,
+                'action_dim': action_dim,
+                'action_low': action_low,
+                'action_high': action_high,
+                'lr_actor': 1e-4,
+                'lr_critic': 1e-3,
+                'gamma': 0.9,
+                'entropy_weight': 0.01,
+            }
+            agent = A2CAgent(env, **args)
     elif opt.alg == "SAC":
         # hyper-parameters
         num_frames = 50000
