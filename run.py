@@ -269,7 +269,7 @@ def main():
             agent = A2CAgent(env, **args)
         else:
             # hyper-parameters
-            num_frames = 80000
+            num_frames = 50000
             args = {
                 'obs_dim': obs_dim,
                 'action_dim': action_dim,

@@ -114,6 +114,7 @@ class PPOAgent(BaseAgent):
                                           lr=self.lr_actor)
         self.critic_optimizer = optim.Adam(self.critic.parameters(),
                                            lr=self.lr_critic)
+        self.loss_criterion = nn.MSELoss()
 
         # memory for training
         self.states: List[torch.Tensor] = []
@@ -218,7 +219,7 @@ class PPOAgent(BaseAgent):
 
             # critic_loss
             value = self.critic(state)
-            critic_loss = (return_ - value).pow(2).mean()
+            critic_loss = self.loss_criterion(return_, value)
 
             # train critic
             self.critic_optimizer.zero_grad()
@@ -293,9 +294,9 @@ class PPOAgent(BaseAgent):
                 state = next_state
                 score += reward
 
-                # # manually termination for Cart-Pole
-                # if score >= 500:
-                #     done = True
+                # manually termination for Cart-Pole
+                if score >= 500:
+                    done = True
 
             avg_score.append(score)
 

@@ -25,22 +25,22 @@ class Actor(nn.Module):
         return action, dist
 
 
-class ActorLogits(nn.Module):
-    """ output logits for the Categorical. """
-    def __init__(self, in_dim: int, out_dim: int):
-        super(ActorLogits, self).__init__()
-
-        self.layers = nn.Sequential(
-            nn.Linear(in_dim, 32),
-            nn.ReLU(),
-            nn.Linear(32, out_dim),
-        )
-
-    def forward(
-            self, state: torch.Tensor
-    ) -> Tuple[torch.Tensor,
-               torch.distributions.distribution.Distribution]:
-        logits = self.layers(state)
-        dist = Categorical(logits=logits)
-        action = dist.sample()
-        return action, dist
+# class Actor(nn.Module):
+#     """ The network outputs logits for the Categorical, which is OK. """
+#     def __init__(self, in_dim: int, out_dim: int):
+#         super(Actor, self).__init__()
+#
+#         self.layers = nn.Sequential(
+#             nn.Linear(in_dim, 32),
+#             nn.ReLU(),
+#             nn.Linear(32, out_dim),
+#         )
+#
+#     def forward(
+#             self, state: torch.Tensor
+#     ) -> Tuple[torch.Tensor,
+#                torch.distributions.distribution.Distribution]:
+#         logits = self.layers(state)
+#         dist = Categorical(logits=logits)
+#         action = dist.sample()
+#         return action, dist

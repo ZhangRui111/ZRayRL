@@ -66,8 +66,9 @@ class REINFORCEAgent(BaseAgent):
         self.optimizer = optim.Adam(self.policy.parameters(), lr=self.lr)
 
         # store necessary info
-        self.saved_log_probs = []
-        self.rewards = []
+        self.epi_log_probs = []
+        self.epi_rewards = []
+        self.epi_entropys = []
         self.eps = np.finfo(np.float32).eps.item()
 
         # total steps count
@@ -84,7 +85,8 @@ class REINFORCEAgent(BaseAgent):
             if self.is_test else action
 
         if not self.is_test:
-            self.saved_log_probs.append(dist.log_prob(selected_action))
+            self.epi_log_probs.append(dist.log_prob(selected_action))
+            self.epi_entropys.append(dist.entropy())
 
         return selected_action.detach().cpu().numpy()[0]
 
@@ -94,7 +96,7 @@ class REINFORCEAgent(BaseAgent):
         done = terminated  # for the CartPole
 
         if not self.is_test:
-            self.rewards.append(reward)
+            self.epi_rewards.append(reward)
 
         return next_state, reward, done
 
@@ -103,16 +105,16 @@ class REINFORCEAgent(BaseAgent):
         R = 0
         policy_loss = []
         returns = []
-        for r in self.rewards[::-1]:
+        for r in self.epi_rewards[::-1]:
             R = r + self.gamma * R
             returns.insert(0, R)
         returns = torch.tensor(returns)
         # return normalization
         returns = (returns - returns.mean()) / (returns.std() + self.eps)
 
-        for log_prob, R in zip(self.saved_log_probs, returns):
-            loss = -R * log_prob
-            loss += self.entropy_weight * -log_prob
+        for log_p, R, e in zip(self.epi_log_probs, returns, self.epi_entropys):
+            loss = -R * log_p
+            loss -= self.entropy_weight * e
             policy_loss.append(loss)
         policy_loss = torch.cat(policy_loss).sum()
 
@@ -121,8 +123,9 @@ class REINFORCEAgent(BaseAgent):
         # clip_grad_norm_(self.policy.parameters(), 10.0)  # gradient clipping
         self.optimizer.step()
 
-        del self.rewards[:]
-        del self.saved_log_probs[:]
+        del self.epi_rewards[:]
+        del self.epi_log_probs[:]
+        del self.epi_entropys[:]
 
         return policy_loss.item()
 
@@ -176,9 +179,9 @@ class REINFORCEAgent(BaseAgent):
                 state = next_state
                 score += reward
 
-                # # manually termination for Cart-Pole
-                # if score >= 500:
-                #     done = True
+                # manually termination for Cart-Pole
+                if score >= 500:
+                    done = True
 
             avg_score.append(score)
 

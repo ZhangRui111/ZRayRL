@@ -192,9 +192,9 @@ class A2CAgent(BaseAgent):
                 state = next_state
                 score += reward
 
-                # # manually termination for Cart-Pole
-                # if score >= 500:
-                #     done = True
+                # manually termination for Cart-Pole
+                if score >= 500:
+                    done = True
 
             avg_score.append(score)
 
