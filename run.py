@@ -11,8 +11,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("alg", type=str,  default="",
                         choices=["DQN", "DoubleDQN", "DuelingDQN", "D3QN",
-                                 "PERDQN", "DDPG", "TD3", "REINFORCE", "PPO",
-                                 "A2C", "A3C", "SAC", "DiscreteSAC"],
+                                 "PERDQN", "DDPG", "TD3", "REINFORCE",
+                                 "A2C", "PPO", "A3C", "SAC", "DiscreteSAC"],
                         help="the DRL algorithm name.")
     parser.add_argument("act_type", type=str, default="",
                         choices=["discrete", "continuous"],
@@ -217,6 +217,33 @@ def main():
             'entropy_weight': 0.01,
         }
         agent = REINFORCEAgent(env, **args)
+    elif opt.alg == "A2C":
+        if opt.act_type == "discrete":
+            # hyper-parameters
+            num_frames = 20000
+            args = {
+                'obs_dim': obs_dim,
+                'action_dim': action_dim,
+                'lr_actor': 3e-4,
+                'lr_critic': 1e-3,
+                'gamma': 0.99,
+                'entropy_weight': 0.001,
+            }
+            agent = A2CAgent(env, **args)
+        else:
+            # hyper-parameters
+            num_frames = 50000
+            args = {
+                'obs_dim': obs_dim,
+                'action_dim': action_dim,
+                'action_low': action_low,
+                'action_high': action_high,
+                'lr_actor': 1e-4,
+                'lr_critic': 1e-3,
+                'gamma': 0.9,
+                'entropy_weight': 0.01,
+            }
+            agent = A2CAgent(env, **args)
     elif opt.alg == "PPO":
         if opt.act_type == "discrete":
             # hyper-parameters
@@ -254,33 +281,6 @@ def main():
                 'entropy_weight': 0.005,
             }
             agent = PPOAgent(env, **args)
-    elif opt.alg == "A2C":
-        if opt.act_type == "discrete":
-            # hyper-parameters
-            num_frames = 20000
-            args = {
-                'obs_dim': obs_dim,
-                'action_dim': action_dim,
-                'lr_actor': 3e-4,
-                'lr_critic': 1e-3,
-                'gamma': 0.99,
-                'entropy_weight': 0.001,
-            }
-            agent = A2CAgent(env, **args)
-        else:
-            # hyper-parameters
-            num_frames = 50000
-            args = {
-                'obs_dim': obs_dim,
-                'action_dim': action_dim,
-                'action_low': action_low,
-                'action_high': action_high,
-                'lr_actor': 1e-4,
-                'lr_critic': 1e-3,
-                'gamma': 0.9,
-                'entropy_weight': 0.01,
-            }
-            agent = A2CAgent(env, **args)
     elif opt.alg == "SAC":
         # hyper-parameters
         num_frames = 50000
